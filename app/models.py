@@ -58,7 +58,7 @@ class Veiculo(models.Model):
     placa = models.CharField(max_length=7, primary_key=True)
     modelo = models.CharField(max_length=10)
     marca = models.CharField(max_length=15)
-    ano = models.YearField()
+    ano = models.IntegerField()
     km_total = models.IntegerField(default=0)
 
     def __str__(self):
