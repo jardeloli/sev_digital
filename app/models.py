@@ -90,21 +90,7 @@ class RegistroSev(models.Model):
 
     #Calcula a quilometragem rodada
     def km_rodado(self):
-        return  self.km_fim - self.km_inicio
-    
-    #Sobrescreve o método save para atualizar o km_total do veículo quando um novo registro de serviço é criado
-    def save(self, *args, **kwargs):
-        eh_novo = self.pk is None
-        super().save(*args, **kwargs)
-
-        if eh_novo:
-            self.atualizar_km_total()
-
-    #Atualiza o km_total do veículo 
-    def atualizar_km_total(self):
-        veiculo = self.veiculo
-        veiculo.km_total += self.km_rodado()
-        veiculo.save()          
+        return  self.km_fim - self.km_inicio  
 
     #Calcula a quantidade de horas trabalhadas
     def horas_trabalhadas(self):
