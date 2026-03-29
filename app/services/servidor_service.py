@@ -13,7 +13,7 @@ class ServidorService:
         
         perfil = Perfil.objects.get(pk=id_perfil)
 
-        servidor = Servidor(
+        servidor = Servidor.objects.create(
             siape = siape,
             nome_servidor = nome,
             cpf = cpf,
@@ -29,11 +29,20 @@ class ServidorService:
     
     @staticmethod
     def deletar_servidor(siape):
-       if not Servidor.objects.filter(pk=siape).exists():
+       if not Servidor.objects.filter(siape=siape).exists():
             raise ValidationError("Servidor não encontrado.")
        
-       Servidor.objects.filter(pk=siape).delete()
+       Servidor.objects.get(pk=siape).delete()
 
        return "Servidor deletado com sucesso."
+    
+    def listar_servidores():
+        return Servidor.objects.all()
+    
+    def buscar_servidor(siape):
+        if not Servidor.objects.filter(siape=siape).exists():
+            raise ValidationError("Servidor não encontrado.")
+        
+        return Servidor.objects.get(pk=siape)
     
     
