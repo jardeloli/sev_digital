@@ -32,4 +32,15 @@ class RegistroSevService:
         veiculo.km_total += registro.km_rodado()
         veiculo.save()
 
+        return "Quilometragem total do veículo atualizada com sucesso."
+    
+    def listar_registros_sev():
+        return RegistroSev.objects.all()
+    
+    def buscar_registro(id):
+        if not RegistroSev.objects.filter(pk=id).exists():
+            raise ValidationError(f"Registro não encontrado.")
+        
+        return RegistroSev.objects.get(pk=id)
+
         
