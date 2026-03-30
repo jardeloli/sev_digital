@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Servidor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        form input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        form input:focus {
+            border-color: #2980b9;
+            outline: none;
+            box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #27ae60;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #219150;
+        }
+
+        .messages {
+            margin-top: 10px;
+            text-align: center;
+            color: red;
+            font-size: 14px;
+        }
+
+        .link-login {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #2980b9;
+            text-decoration: none;
+        }
+
+        .link-login:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cadastrar Servidor</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="nome" placeholder="Nome" required>
+        <input type="text" name="siape" placeholder="SIAPE" required>
+        <input type="text" name="cpf" placeholder="CPF" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+
+        <button type="submit">Cadastrar</button>
+
+        {% for message in messages %}
+            <div class="messages">{{ message }}</div>
+        {% endfor %}
+    </form>
+
+    <a class="link-login" href="/login/">Já possui conta? Faça login</a>
+</div>
+
+</body>
+</html>

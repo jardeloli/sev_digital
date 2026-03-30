@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Serviço</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #eef1f5;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            width: 400px;
+            max-width: 95%;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        form input, form select, form button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        form input:focus, form select:focus {
+            border-color: #8e44ad;
+            outline: none;
+        }
+
+        button {
+            background: #8e44ad;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #732d91;
+        }
+
+        label {
+            font-weight: bold;
+            color: #2c3e50;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Novo Registro de Serviço</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label for="servidor">Servidor</label>
+        <select name="servidor" id="servidor">
+            {% for s in servidores %}
+            <option value="{{ s.siape }}">{{ s.nome_servidor }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="veiculo">Veículo</label>
+        <select name="veiculo" id="veiculo">
+            {% for v in veiculos %}
+            <option value="{{ v.placa }}">{{ v.placa }} - {{ v.marca }} {{ v.modelo }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="servico">Serviço</label>
+        <select name="servico" id="servico">
+            {% for s in servicos %}
+            <option value="{{ s.id_servico }}">{{ s.nome_servico }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="origem">Origem</label>
+        <input type="text" name="origem" id="origem" placeholder="Origem">
+
+        <label for="destino">Destino</label>
+        <input type="text" name="destino" id="destino" placeholder="Destino">
+
+        <label for="data_inicio">Data Início</label>
+        <input type="datetime-local" name="data_inicio" id="data_inicio">
+
+        <label for="data_fim">Data Fim</label>
+        <input type="datetime-local" name="data_fim" id="data_fim">
+
+        <label for="km_inicio">KM Inicial</label>
+        <input type="number" name="km_inicio" id="km_inicio" placeholder="KM Inicial">
+
+        <label for="km_fim">KM Final</label>
+        <input type="number" name="km_fim" id="km_fim" placeholder="KM Final">
+
+        <button type="submit">Salvar Registro</button>
+    </form>
+</div>
+
+</body>
+</html>

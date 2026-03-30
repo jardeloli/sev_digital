@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Registros</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #eef1f5;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .btn-novo {
+            display: inline-block;
+            background: #8e44ad;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .btn-novo:hover {
+            background: #732d91;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background: #8e44ad;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #dcd0ea;
+        }
+
+        td {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Registros de Serviços</h1>
+    <a href="/sev/nova/" class="btn-novo">➕ Novo Registro</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Servidor</th>
+                <th>Veículo</th>
+                <th>Origem</th>
+                <th>Destino</th>
+                <th>KM</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in registros %}
+            <tr>
+                <td>{{ r.servidor.nome_servidor }}</td>
+                <td>{{ r.veiculo.placa }}</td>
+                <td>{{ r.origem }}</td>
+                <td>{{ r.destino }}</td>
+                <td>{{ r.km_inicio }} - {{ r.km_fim }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align:center; color:#888;">Nenhum registro encontrado</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

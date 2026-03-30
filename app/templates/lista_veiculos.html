@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Veículos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #eef1f5;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .btn-novo {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .btn-novo:hover {
+            background: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #d0e4f7;
+        }
+
+        td {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Veículos</h1>
+    <a href="/veiculos/novo/" class="btn-novo">➕ Novo Veículo</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Placa</th>
+                <th>Modelo</th>
+                <th>Marca</th>
+                <th>Ano</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in veiculos %}
+            <tr>
+                <td>{{ v.placa }}</td>
+                <td>{{ v.modelo }}</td>
+                <td>{{ v.marca }}</td>
+                <td>{{ v.ano }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align:center; color:#888;">Nenhum veículo cadastrado</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

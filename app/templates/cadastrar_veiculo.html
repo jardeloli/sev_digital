@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Veículo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        form input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        form input:focus {
+            border-color: #2980b9;
+            outline: none;
+            box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #2980b9;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #217dbb;
+        }
+
+        .messages {
+            margin-top: 10px;
+            text-align: center;
+            color: red;
+            font-size: 14px;
+        }
+
+        .link-lista {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #2980b9;
+            text-decoration: none;
+        }
+
+        .link-lista:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cadastrar Veículo</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="placa" placeholder="Placa" required>
+        <input type="text" name="modelo" placeholder="Modelo" required>
+        <input type="text" name="marca" placeholder="Marca" required>
+        <input type="number" name="ano" placeholder="Ano" required>
+
+        <button type="submit">Salvar</button>
+
+        {% for message in messages %}
+            <div class="messages">{{ message }}</div>
+        {% endfor %}
+    </form>
+
+    <a class="link-lista" href="/veiculos/">Voltar para lista de veículos</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px;
+            width: 100%;
+            background: #3498db;
+            color: white;
+            border: none;
+        }
+
+        a {
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Login</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="email" name="email" placeholder="Email">
+        <input type="password" name="senha" placeholder="Senha">
+        <button type="submit">Entrar</button>
+    </form>
+
+    {% for message in messages %}
+        <p style="color:red;">{{ message }}</p>
+    {% endfor %}
+
+    <a href="/servidor/novo/">Criar conta</a>
+</div>
+
+</body>
+</html>

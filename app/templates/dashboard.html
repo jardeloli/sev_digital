@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #eef1f5;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px auto;
+            max-width: 900px;
+        }
+
+        .card {
+            background: white;
+            width: 200px;
+            height: 120px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .card span {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .veiculos { background: #002c49; }
+        .novo-veiculo { background: #025916; }
+        .novo-registro { background: #8e44ad; }
+        .lista-registros { background: #760206; }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<header>Dashboard</header>
+
+<div class="container">
+    <a href="/veiculos/" class="card veiculos">
+        Ver Veículos
+    </a>
+
+    <a href="/veiculos/novo/" class="card novo-veiculo">
+        Cadastrar Veículo
+    </a>
+
+    <a href="/sev/nova/" class="card novo-registro">
+        Novo Registro
+    </a>
+
+    <a href="/sev/" class="card lista-registros">
+        Lista de Registros
+    </a>
+</div>
+
+</body>
+</html>
