@@ -20,10 +20,10 @@ class ServidorService:
             data_nascimento = data_nascimento,
             email = email,
             senha = senha,
-            id_perfil = perfil
+            perfil = perfil
         )
 
-        servidor.save()
+        
 
         return servidor
     
@@ -36,8 +36,10 @@ class ServidorService:
 
        return "Servidor deletado com sucesso."
     
+    @staticmethod
     def listar_servidores():
         return Servidor.objects.all()
+    @staticmethod
     
     def buscar_servidor(siape):
         if not Servidor.objects.filter(siape=siape).exists():
