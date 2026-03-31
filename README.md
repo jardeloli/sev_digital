@@ -81,8 +81,27 @@ Como configurar e executar o projeto:
 
 Executar:
 
+A aplicação pode ser utilizada de duas formas: pela interface web (views), que representa o fluxo principal do sistema, ou pelo painel administrativo do Django, que permite o gerenciamento direto dos dados.
 
+Antes de iniciar, é necessário preparar o ambiente executando as migrations para criação das tabelas no banco de dados. Para isso, utilize o comando:
 
+- python manage.py migrate
+
+Em seguida, para acessar o painel administrativo, é necessário criar um superusuário com o comando:
+
+- python manage.py createsuperuser
+
+Após a criação do superusuário, basta iniciar o servidor da aplicação com:
+
+- python manage.py runserver
+
+A aplicação estará disponível no endereço http://127.0.0.1:8000/
+, onde é possível acessar a interface web e utilizar funcionalidades como login, cadastro de servidores, veículos e registro de serviços.
+
+O painel administrativo pode ser acessado pelo endereço http://127.0.0.1:8000/admin/
+, utilizando o superusuário criado anteriormente. Nesse ambiente, é possível gerenciar todas as entidades do sistema diretamente.
+
+Vale ressaltar que a interface via views ainda está em desenvolvimento, sendo o admin do Django uma alternativa mais completa para testes e manipulação dos dados.
 
 Paradigmas
 
