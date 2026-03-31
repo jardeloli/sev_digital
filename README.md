@@ -101,7 +101,7 @@ A aplicação estará disponível no endereço http://127.0.0.1:8000/
 O painel administrativo pode ser acessado pelo endereço http://127.0.0.1:8000/admin/
 , utilizando o superusuário criado anteriormente. Nesse ambiente, é possível gerenciar todas as entidades do sistema diretamente.
 
-Vale ressaltar que a interface via views ainda está em desenvolvimento, sendo o admin do Django uma alternativa mais completa para testes e manipulação dos dados.
+Vale ressaltar que a interface via views ainda está em desenvolvimento, sendo o admin do Django a alternativa mais completa para testes e manipulação dos dados. Por exemplo a criação de usuarios e perfis deve ser realizada na interface do administrador no entanto futuramente a intervace de usuario tera as mesmas ferramentas de CRUD.
 
 Paradigmas
 
