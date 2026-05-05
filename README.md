@@ -39,15 +39,16 @@ Equipe
 
 - Gustavo Noleto: Tech Lead: 
    Líder do projeto,auxiliar no processo de documentação, progamação e implementação do frontend, criação de views no django
+
+- Wallaci Araújo: Analista de sistema / Vice-Líder
+  Levantamento de Requisitos ,responsavel pela comunicação com os stakeholders, entender o problema e transmitir para os outros membros da équipe.
    
 - Jardel Santos: Progamador Fullstack
   Responsavel pelo backend, questão de modelagem de banco de dados, parte da documentação, estruturação das branchs e versionamento do código.
   
-- Miqueias do Nascimento: Analista de sistema
-  Escolha das tecnologias e auxiliar Wallaci na tradução dos problemas da parte logica para a implementação de fato no sistema (abstração
+- Miqueias do Nascimento: Analista de sistema / Consultor de stakeholder
+  Escolha das tecnologias e auxiliar Wallaci na tradução dos problemas da parte logica para a implementação de fato no sistema (abstração)
 
-- Wallaci Araújo: Analista de sistema / Consultor de stakeholder
-  Levantamento de Requisitos (Ficou responsavel pela comunicação com os stakeholders, entender o problema e transmitir para os outros membros da équipe).
 
 Tecnologias Utilizadas
 
