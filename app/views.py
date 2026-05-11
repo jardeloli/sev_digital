@@ -9,7 +9,7 @@ from .services.veiculo_service import VeiculoService
 from .services.servidor_service import ServidorService
 from .services.registroSev_service import RegistroSevService
 from .services.servico_service import ServicoService
-
+from app.services.perfil_service import PerfilService
 
 def usuario_logado(request):
     return request.session.get('user_id')
@@ -142,3 +142,53 @@ def lista_sev(request):
 
     registros = RegistroSevService.listar_registros_sev()
     return render(request, 'lista_sev.html', {'registros': registros})
+
+
+def cadastrar_perfil(request):
+
+    if not usuario_logado(request):
+        return redirect('login')
+
+    if request.method == 'POST':
+
+        try:
+
+            PerfilService.criar_perfil(
+                nome=request.POST.get('nome_perfil'),
+                descricao=request.POST.get('descricao')
+            )
+
+            messages.success(
+                request,
+                'Perfil cadastrado com sucesso.'
+            )
+
+            return redirect('lista_perfis')
+
+        except ValidationError as e:
+
+            messages.error(request, e.message)
+
+        except Exception as e:
+
+            print(e)
+
+            messages.error(
+                request,
+                'Erro ao cadastrar perfil.'
+            )
+
+    return render(
+        request,
+        'cadastrar_perfil.html'
+    )
+
+def lista_perfis(request):
+
+    perfis = PerfilService.listar_perfis()
+
+    return render(
+        request,
+        'lista_perfis.html',
+        {'perfis': perfis}
+    )
