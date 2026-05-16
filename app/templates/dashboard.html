@@ -114,10 +114,15 @@ Dashboard
                         <small>
                             REGISTROS
                         </small>
-
-                        <div class="card-number">
-                            {{ total_registros }}
+                        <div class="d-flex align-items-center gap-3">
+                             <div class="card-number">
+                                {{ total_registros }}
+                             </div>
+                              <h3 class="mb-0">
+                                    Total de Registros Abertos
+                              </h3>
                         </div>
+                       
 
                     </div>
 
@@ -227,12 +232,8 @@ Dashboard
                 <div class="d-flex justify-content-between mb-3">
 
                     <h6 class="text-muted">
-                        REGISTROS ATIVOS
+                        ÚLTIMOS REGISTROS
                     </h6>
-
-                    <span class="badge bg-dark">
-                        {{ total_registros }} abertos
-                    </span>
 
                 </div>
 
@@ -248,6 +249,8 @@ Dashboard
                                 <th>Origem</th>
                                 <th>Destino</th>
                                 <th>KM</th>
+                                <th>Status</th>
+                                
                             </tr>
 
                         </thead>
@@ -276,6 +279,10 @@ Dashboard
 
                                 <td class="fw-bold">
                                     {{ registro.km_rodado }} km
+                                </td>
+
+                                <td>
+                                    {{ registro.get_status_display }}
                                 </td>
 
                             </tr>
