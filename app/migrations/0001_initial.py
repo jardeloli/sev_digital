@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='Perfil',
             fields=[
                 ('id_perfil', models.SmallAutoField(primary_key=True, serialize=False)),
-                ('nome_perfil', models.CharField(max_length=10)),
+                ('nome_perfil', models.CharField(max_length=20)),
                 ('descricao', models.CharField(blank=True, max_length=45)),
             ],
         ),
