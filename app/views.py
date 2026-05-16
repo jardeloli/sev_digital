@@ -44,7 +44,28 @@ def dashboard(request):
     if not usuario_logado(request):
         return redirect('login')
 
-    return render(request, 'dashboard.html')
+    registros = RegistroSev.objects.select_related(
+        'servidor',
+        'veiculo'
+    ).order_by('-data_inicio')[:5]
+
+    context = {
+
+        # cards
+        'total_veiculos': Veiculo.objects.count(),
+        'total_servidores': Servidor.objects.count(),
+        'total_registros': RegistroSev.objects.count(),
+
+        # tabela
+        'registros': registros,
+
+        # badge "abertos"
+        'registros_abertos': RegistroSev.objects.filter(
+            data_fim__isnull=False
+        ).count()
+    }
+
+    return render(request, 'dashboard.html', context)
 
 
 def cadastrar_veiculo(request):
