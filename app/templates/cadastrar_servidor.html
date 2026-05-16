@@ -96,10 +96,12 @@
     <form method="POST">
         {% csrf_token %}
         <input type="text" name="nome" placeholder="Nome" required>
-        <input type="text" name="siape" placeholder="SIAPE" required>
+        <input type="text" name="siape" placeholder="Código SIAPE" required>
+        <input type="text" name="dt_nasc" placeholder="Data de Nascimento" required>
         <input type="text" name="cpf" placeholder="CPF" required>
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="senha" placeholder="Senha" required>
+         <input type="number" name="perfil_id" placeholder="ID Perfil" required>
 
         <button type="submit">Cadastrar</button>
 
