@@ -25,15 +25,26 @@ class PerfilPermissao(models.Model):
         return f"{self.perfil.nome_perfil} - {self.permissao.nome_permissao}"
     
 class Servidor(models.Model):
+
+    STATUS_CHOICES = [
+        ('ATIVO', 'Ativo'),
+        ('AFASTADO', 'Afastado'),
+        ('DESLIGADO', 'Desligado'),
+    ]
+
     siape = models.IntegerField(primary_key=True)
     nome_servidor = models.CharField(max_length=45)
     cpf = models.CharField(max_length=11, unique=True)
     data_nascimento = models.DateField()
     email = models.EmailField(max_length=45, unique=True)
     senha = models.CharField(max_length=255)
-  
-
     perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='ATIVO'
+    )
 
     #criptografa a senha
     def set_password(self, raw_password):
@@ -55,11 +66,25 @@ class Servidor(models.Model):
 
     
 class Veiculo(models.Model):
+
+    STATUS_CHOICES = [
+        ('ATIVO', 'Ativo'),
+        ('MANUTENCAO', 'Manutenção'),
+        ('EM_USO', 'Em uso'),
+        ('INATIVO', 'Inativo'),
+    ]
+    
     placa = models.CharField(max_length=7, primary_key=True)
     modelo = models.CharField(max_length=10)
     marca = models.CharField(max_length=15)
     ano = models.IntegerField()
     km_total = models.IntegerField(default=0)
+
+    status = models.CharField(
+        max_length=15,
+        choices=STATUS_CHOICES,
+        default='ATIVO'
+    )
 
     def __str__(self):
         return f"{self.marca} {self.modelo} - {self.placa}"
@@ -75,6 +100,13 @@ class Servico(models.Model):
 
     
 class RegistroSev(models.Model):
+
+    STATUS_CHOICES = [
+        ('ABERTO', 'Aberto'),
+        ('CANCELADO', 'Cancelado'),
+        ('FINALIZADO', 'Finalizado'),
+    ]
+
     id_sev = models.SmallAutoField(primary_key=True)
     servidor = models.ForeignKey(Servidor, on_delete=models.CASCADE)
     veiculo = models.ForeignKey(Veiculo, on_delete=models.CASCADE)
@@ -88,6 +120,12 @@ class RegistroSev(models.Model):
     data_fim = models.DateTimeField()
     km_fim = models.IntegerField()
 
+    status = models.CharField(
+        max_length=12,
+        choices=STATUS_CHOICES,
+        default='ABERTO'
+    )
+    
     #Calcula a quilometragem rodada
     def km_rodado(self):
         return  self.km_fim - self.km_inicio  
