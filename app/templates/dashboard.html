@@ -1,292 +1,75 @@
-{% load static %}
+{% extends 'base.html' %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .card-dashboard{
+        border:none;
+        border-radius:16px;
+        color:white;
+        padding:10px;
+    }
+
+    .card-green{
+        background:#2d3350;
+        border-top:4px solid #84cc16;
+    }
+
+    .card-blue{
+        background:#1d4376;
+        border-top:4px solid #3b82f6;
+    }
+
+    .card-purple{
+        background:#44205f;
+        border-top:4px solid #d946ef;
+    }
+
+    .card-number{
+        font-size:60px;
+        font-weight:800;
+    }
+
+    .quick-card{
+        border-radius:14px;
+        border:none;
+    }
+
+    table{
+        background:white;
+    }
+
+    .nav-link2{
+        position:relative;
+        color:rgb(68, 66, 66);
+        transition:0.3s;
+    }
+
+    .action-link{
+        text-decoration:none;
+        border-radius:12px;
+        padding:10px;
+        display:block;
+        transition:0.3s;
+    }
+
+    .action-link:hover{
+        background:#f3f4f6;
+        transform:translateY(-3px);
+        box-shadow:0 8px 20px rgba(128, 133, 209, 0.1);
+    }
+
+</style>
 
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Dashboard</title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <style>
-
-        body{
-            background:#ecebe7;
-        }
-
-        .navbar-custom{
-            background:#17315c;
-        }
-
-        .card-dashboard{
-            border:none;
-            border-radius:16px;
-            color:white;
-            padding:10px;
-        }
-
-        .card-green{
-            background:#2d3350;
-            border-top:4px solid #84cc16;
-        }
-
-        .card-blue{
-            background:#1d4376;
-            border-top:4px solid #3b82f6;
-        }
-
-        .card-purple{
-            background:#44205f;
-            border-top:4px solid #d946ef;
-        }
-
-        .card-number{
-            font-size:60px;
-            font-weight:800;
-        }
-
-        .quick-card{
-            border-radius:14px;
-            border:none;
-        }
-
-        table{
-            background:white;
-        }
-
-        .dropdown-hover{
-            position:relative;
-            display:inline-block;
-        }
-
-        .btn-config{
-            background:#17315c;
-            color:rgba(230, 228, 228, 0.575);
-            border:none;
-            border-radius:10px;
-            padding:10px 16px;
-            font-weight:600;
-        }
-
-        .btn-config:hover{
-            color:white;
-        }
-
-        .dropdown-hover:hover .btn-config{
-            color:white;
-        }
-
-        .dropdown-menu-custom{
-            position:absolute;
-            top:110%;
-            right:0;
-
-            background:white;
-
-            min-width:180px;
-
-            border-radius:12px;
-
-            box-shadow:0 10px 25px rgba(0,0,0,0.15);
-
-            padding:8px;
-
-            list-style:none;
-
-            opacity:0;
-            visibility:hidden;
-
-            transform:translateY(10px);
-
-            transition:0.25s;
-        }
-
-        .dropdown-hover:hover .dropdown-menu-custom{
-            opacity:1;
-            visibility:visible;
-            transform:translateY(0);
-        }
-
-        
-
-        .dropdown-menu-custom li a{
-
-            display:flex;
-            align-items:center;
-
-            gap:10px;
-
-            padding:3px 12px;
-
-            border-radius:8px;
-
-            text-decoration:none;
-
-            color:#17315c;
-
-            font-size:14px;
-
-            transition:0.2s;
-        }
-
-        .dropdown-menu-custom li a:hover{
-            background:#cdcfd338;
-            color:#17315c;
-        }
-        
-        .nav-link{
-            position:relative;
-            color:rgba(230, 228, 228, 0.575);
-            transition:0.3s;
-        }
-
-        .nav-link2{
-            position:relative;
-            color:rgb(68, 66, 66);
-            transition:0.3s;
-        }
-
-        .nav-link:hover{
-            color:white;
-        }
-
-        .nav-link.active{
-            color:white !important;
-        }
-
-        .nav-link.active::after{
-            content:'';
-            position:absolute;
-            left:0;
-            bottom:-8px;
-            width:100%;
-            height:4px;
-            background:#b9ff66;
-            border-radius:10px;
-        }
-
-       .action-link{
-            text-decoration:none;
-            border-radius:12px;
-            padding:10px;
-            display:block;
-            transition:0.3s;
-        }
-
-        .action-link:hover{
-            background:#f3f4f6;
-            transform:translateY(-3px);
-            box-shadow:0 8px 20px rgba(128, 133, 209, 0.1);
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-    <!-- NAVBAR -->
-
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
-
-        <div class="container-fluid">
-
-            <a class="navbar-brand fw-bold" href="#">
-                SEV DIGITAL
-            </a>
-
-            <div class="collapse navbar-collapse">
-
-                <ul class="navbar-nav mx-auto">
-
-
-
-                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}"href="/dashboard/">
-                            <i class="bi bi-house-fill"></i>
-                            Home
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a  class="nav-link {% if request.path == '/veiculos/' %}active{% endif %}"href="/veiculos/">
-                            <i class="bi bi-car-front"></i>
-                            Veículos
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/sev/' %}active{% endif %}"href="/sev/">
-                            <i class="bi bi-clipboard-data-fill"></i>
-                            Registros
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/servidores/' %}active{% endif %}"href="/servidores/">
-                            <i class="bi bi-people-fill"></i>
-                            Servidores
-                        </a>
-                    </li>
-
-                </ul>
-
-                <div class="dropdown-hover">
-
-                        <button class="btn btn-config">
-
-                            <i class="bi bi-gear-fill"></i>
-                            Configurações
-
-                        </button>
-
-                        <ul class="dropdown-menu-custom">
-
-                            <li>
-                                <a href="/perfis/">
-
-                                    <i class="bi bi-person-badge-fill"></i>
-                                    Perfil
-
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="/permissoes/">
-
-                                    <i class="bi bi-shield-lock-fill"></i>
-                                    Permissões
-
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="/usuarios/editar/">
-
-                                    <i class="bi bi-pencil-square"></i>
-                                    Editar Usuário
-
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-            </div>
-
-        </div>
-
-    </nav>
-
-    <!-- CONTAINER -->
 
     <div class="container-fluid p-4">
 
-        <!-- TITULO -->
+        
 
         <div class="mb-4">
 
@@ -299,8 +82,6 @@
             </p>
 
         </div>
-
-        <!-- CARDS -->
 
         <div class="row g-4 mb-4">
 
@@ -367,55 +148,68 @@
         </div>
 
         <!-- AÇÕES -->
-
         <div class="row g-4 mb-4">
 
-            <div class="col-md-6">
+            
+            <h6>Ações Rápidas</h6>
+            <div class="col-md-2">
 
                 <div class="card quick-card shadow-sm">
 
                     <div class="card-body">
 
-                        
-                            <a class="nav-link2 action-link" href="/veiculos/novo/">
+                        <a class="nav-link2 action-link d-flex align-items-center gap-3"
+                        href="/veiculos/novo/">
+
+                            <i class="bi bi-plus-square-fill fs-2" style="color:#001479"></i>
+
+                            <div>
+
                                 <h5>
                                     Novo Veículo
                                 </h5>
-                                
-                                
-                                 <p class="text-muted">
+
+                                <p class="text-muted mb-0">
                                     Adicionar à frota
                                 </p>
 
-                            </a>
+                            </div>
 
-                            
-                        
+                        </a>
 
-                       
                     </div>
 
                 </div>
 
             </div>
 
-            <div class="col-md-6">
+          
+
+            <div class="col-md-2">
 
                 <div class="card quick-card shadow-sm">
 
                     <div class="card-body">
 
-                        <a class="nav-link2 action-link" href="/servidor/novo/">
+                        <a class="nav-link2 action-link d-flex align-items-center gap-3"
+                        href="/servidor/novo/">
+
+                            <i class="bi bi-plus-square-fill fs-2" style="color:#001479"></i>
+
+                            <div>
+
                                 <h5>
                                     Novo Servidor
                                 </h5>
-                                
-                                
-                                 <p class="text-muted">
+
+                                <p class="text-muted mb-0">
                                     Cadastrar Servidor
                                 </p>
 
-                            </a>
+                            </div>
+
+                        </a>
+
                     </div>
 
                 </div>
@@ -513,3 +307,4 @@
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </html>
+{% endblock %}
