@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import make_password, check_password
 
 class Perfil(models.Model):
     id_perfil = models.SmallAutoField(primary_key=True)
-    nome_perfil = models.CharField(max_length=10)
+    nome_perfil = models.CharField(max_length=20)
     descricao = models.CharField(max_length=45, blank=True)
 
     def __str__(self):
