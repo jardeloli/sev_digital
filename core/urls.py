@@ -28,5 +28,6 @@ urlpatterns = [
     path('sev/nova/', views.registrar_sev, name='registrar_sev'),
     path('sev/', views.lista_sev, name='lista_sev'),
     path('perfil/novo/',views.cadastrar_perfil,name='cadastrar_perfil'),
-    path('perfis/',views.lista_perfis,name='lista_perfis')
+    path('perfis/',views.lista_perfis,name='lista_perfis'),
+    path('logout/',views.logout_view,name='sair')
 ]
