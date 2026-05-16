@@ -1,0 +1,371 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>
+        {% block title %}{% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+
+        body{
+            background:#ecebe7;
+        }
+
+        .navbar-custom{
+            background:#17315c;
+        }
+
+        .dropdown-hover{
+            position:relative;
+            display:inline-block;
+        }
+
+        .btn-config{
+            background:#17315c;
+            color:rgba(230, 228, 228, 0.575);
+            border:none;
+            border-radius:10px;
+            padding:10px 16px;
+            font-weight:600;
+        }
+
+        .btn-config:hover{
+            color:white;
+        }
+
+        .dropdown-hover:hover .btn-config{
+            color:white;
+        }
+
+        .dropdown-menu-custom{
+            position:absolute;
+            top:110%;
+            right:0;
+
+            background:white;
+
+            min-width:180px;
+
+            border-radius:12px;
+
+            box-shadow:0 10px 25px rgba(0,0,0,0.15);
+
+            padding:8px;
+
+            list-style:none;
+
+            opacity:0;
+            visibility:hidden;
+
+            transform:translateY(10px);
+
+            transition:0.25s;
+        }
+
+        .dropdown-hover:hover .dropdown-menu-custom{
+            opacity:1;
+            visibility:visible;
+            transform:translateY(0);
+        }
+
+        .dropdown-menu-custom li a{
+
+            display:flex;
+            align-items:center;
+
+            gap:10px;
+
+            padding:3px 12px;
+
+            border-radius:8px;
+
+            text-decoration:none;
+
+            color:#17315c;
+
+            font-size:14px;
+
+            transition:0.2s;
+        }
+
+        .dropdown-menu-custom li a:hover{
+            background:#cdcfd338;
+            color:#17315c;
+        }
+
+        .user-button{
+
+            display:flex;
+            align-items:center;
+            gap:12px;
+
+            background:#17315c;
+
+            border:none;
+
+            border-radius:14px;
+
+            padding:8px 14px;
+
+            transition:0.25s;
+
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .dropdown-hover:hover .user-button{
+            background:#b9bdc234;
+        }
+
+        .user-avatar{
+
+            width:42px;
+            height:42px;
+
+            border-radius:50%;
+
+            background:white;
+
+            color:#17315c;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-size:30px;
+        }
+
+        .user-info{
+            display:flex;
+            flex-direction:column;
+            align-items:flex-start;
+        }
+
+        .user-name{
+            font-weight:600;
+            color:#ffffff;
+            line-height:1;
+        }
+
+        .user-role{
+            color:#959ba8;
+        }
+
+        .nav-link{
+            position:relative;
+            color:rgba(230, 228, 228, 0.575);
+            transition:0.3s;
+        }
+
+        .nav-link:hover{
+            color:white;
+        }
+
+        .nav-link.active{
+            color:white !important;
+        }
+
+        .nav-link.active::after{
+            content:'';
+            position:absolute;
+            left:0;
+            bottom:-8px;
+            width:100%;
+            height:4px;
+            background:#b9ff66;
+            border-radius:10px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+
+        <div class="container-fluid">
+
+            <a class="navbar-brand fw-bold" href="/dashboard/">
+                SEV DIGITAL
+            </a>
+
+            <div class="collapse navbar-collapse">
+
+                <ul class="navbar-nav mx-auto">
+
+                    <li class="nav-item">
+
+                        <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}"
+                           href="/dashboard/">
+
+                            <i class="bi bi-house-fill"></i>
+                            Home
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link {% if request.path == '/veiculos/' %}active{% endif %}"
+                           href="/veiculos/">
+
+                            <i class="bi bi-car-front"></i>
+                            Veículos
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link {% if request.path == '/sev/' %}active{% endif %}"
+                           href="/sev/">
+
+                            <i class="bi bi-clipboard-data-fill"></i>
+                            Registros
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link {% if request.path == '/servidores/' %}active{% endif %}"
+                           href="/servidores/">
+
+                            <i class="bi bi-people-fill"></i>
+                            Servidores
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link {% if request.path == '/servidores/' %}active{% endif %}"
+                           href="/servidores/">
+
+                            <i class="bi bi-tools"></i>
+                            Serviços
+
+                        </a>
+
+                    </li>
+
+
+                </ul>
+
+                <!-- CONFIG -->
+
+                <div class="dropdown-hover me-3">
+
+                    <button class="btn btn-config">
+
+                        <i class="bi bi-gear-fill"></i>
+                        Configurações
+
+                    </button>
+
+                    <ul class="dropdown-menu-custom">
+
+                        <li>
+                            <a href="/perfis/">
+                                <i class="bi bi-person-badge-fill"></i>
+                                Perfil
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/permissoes/">
+                                <i class="bi bi-shield-lock-fill"></i>
+                                Permissões
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/usuarios/editar/">
+                                <i class="bi bi-pencil-square"></i>
+                                Editar Usuário
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <!-- USER -->
+
+                <div class="dropdown-hover">
+
+                    <button class="user-button">
+
+                        <div class="user-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div class="user-info">
+
+                            <span class="user-name">
+                                {{ usuario.nome_servidor }}
+                            </span>
+
+                            <small class="user-role">
+                                {{ usuario.perfil.nome_perfil }}
+                            </small>
+
+                        </div>
+
+                    </button>
+
+                    <ul class="dropdown-menu-custom">
+
+                        <li>
+                            <a href="/perfil/">
+                                <i class="bi bi-person-circle"></i>
+                                Meu Perfil
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="/logout/">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Sair
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <div class="container-fluid p-4">
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</html>
