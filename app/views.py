@@ -44,10 +44,7 @@ def dashboard(request):
     if not usuario_logado(request):
         return redirect('login')
 
-    registros = RegistroSev.objects.select_related(
-        'servidor',
-        'veiculo'
-    ).order_by('-data_inicio')[:5]
+    registros = RegistroSev.objects.filter(status='ABERTO').order_by('-data_inicio')[:10]
 
     usuario = Servidor.objects.select_related(
         'perfil'
@@ -60,13 +57,14 @@ def dashboard(request):
         # cards
         'total_veiculos': Veiculo.objects.count(),
         'total_servidores': Servidor.objects.count(),
-        'total_registros': RegistroSev.objects.count(),
+        'total_registros': RegistroSev.objects.filter(status='ABERTO').count(),
 
 
         'usuario': usuario,
 
         # tabela
         'registros': registros,
+        'registros_abertos': len(registros),
 
         # badge "abertos"
         'registros_abertos': RegistroSev.objects.filter(
