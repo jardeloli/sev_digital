@@ -49,12 +49,21 @@ def dashboard(request):
         'veiculo'
     ).order_by('-data_inicio')[:5]
 
+    usuario = Servidor.objects.select_related(
+        'perfil'
+    ).get(
+        siape=request.session['user_id']
+    )
+
     context = {
 
         # cards
         'total_veiculos': Veiculo.objects.count(),
         'total_servidores': Servidor.objects.count(),
         'total_registros': RegistroSev.objects.count(),
+
+
+        'usuario': usuario,
 
         # tabela
         'registros': registros,
@@ -105,10 +114,10 @@ def cadastrar_servidor(request):
                 siape=request.POST.get('siape'),
                 nome=request.POST.get('nome'),
                 cpf=request.POST.get('cpf'),
-                data_nascimento='2000-01-01',
+                data_nascimento=request.POST.get('dt_nasc'),
                 email=request.POST.get('email'),
                 senha=request.POST.get('senha'),
-                id_perfil=1
+                id_perfil=request.POST.get('perfil_id')
             )
 
             messages.success(request, 'Conta criada com sucesso')
