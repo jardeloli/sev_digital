@@ -30,4 +30,5 @@ urlpatterns = [
     path('perfil/novo/',views.cadastrar_perfil,name='cadastrar_perfil'),
     path('perfis/',views.lista_perfis,name='lista_perfis'),
     path('servicos/', views.lista_servicos, name='lista_servicos'),
+    path('servidor/novo/', views.cadastrar_servidor, name='cadastrar_servidor'),
 ]
