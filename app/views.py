@@ -192,3 +192,8 @@ def lista_perfis(request):
         'lista_perfis.html',
         {'perfis': perfis}
     )
+
+def lista_servicos(request):
+    todos_servicos = Servico.objects.all()
+    
+    return render(request, 'lista_servicos.html', {'servicos': todos_servicos})

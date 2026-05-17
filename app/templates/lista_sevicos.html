@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<body>
+
+<div class="container">
+    <h1>Cadastro de Tipos de Serviço Externo</h1>
+    <a href="/servicos/novo/" class="btn-novo">➕ Novo Serviço</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Serviço</th>
+                <th>Descrição</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in servicos %}
+            <tr>
+                <td>{{ s.codigo }}</td>
+                <td>{{ s.nome }}</td>
+                <td>{{ s.descricao }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align:center; color:#888;">Nenhum serviço cadastrado</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
