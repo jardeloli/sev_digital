@@ -197,3 +197,24 @@ def lista_servicos(request):
     todos_servicos = Servico.objects.all()
     
     return render(request, 'lista_servicos.html', {'servicos': todos_servicos})
+
+def cadastrar_servidor(request):
+    if request.method == 'POST':
+        dados_servidor = {
+            'siape': request.POST.get('siape'),
+            'perfil': request.POST.get('perfil'), # ID do perfil selecionado (1 ou 2)
+            'nome_servidor': request.POST.get('nome_servidor'),
+            'cpf': request.POST.get('cpf'),
+            'data_nascimento': request.POST.get('data_nascimento'),
+            'email': request.POST.get('email'),
+            'senha': request.POST.get('senha'),
+        }
+        try:
+            ServidorService.criar_servidor(**dados_servidor)
+            messages.success(request, 'Servidor cadastrado com sucesso.')
+            return redirect('lista_servidores')
+        except Exception as e:
+            print(f"Erro ao salvar servidor: {e}")
+            return render(request, 'cadastrar_servidor.html', {'erro': 'Erro ao salvar os dados. Verifique os campos.'})
+            
+    return render(request, 'cadastrar_servidor.html')
