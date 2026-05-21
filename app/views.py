@@ -55,8 +55,8 @@ def dashboard(request):
     context = {
 
         # cards
-        'total_veiculos': Veiculo.objects.count(),
-        'total_servidores': Servidor.objects.count(),
+        'total_veiculos': Veiculo.objects.filter(status='ATIVO').count(),
+        'total_servidores': Servidor.objects.filter(status='ATIVO').count(),
         'total_registros': RegistroSev.objects.filter(status='ABERTO').count(),
 
 
@@ -64,7 +64,6 @@ def dashboard(request):
 
         # tabela
         'registros': registros,
-        'registros_abertos': len(registros),
 
         # badge "abertos"
         'registros_abertos': RegistroSev.objects.filter(

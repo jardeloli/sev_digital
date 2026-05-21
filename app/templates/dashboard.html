@@ -92,11 +92,15 @@ Dashboard
                     <div class="card-body">
 
                         <small>
-                            TOTAL DE VEÍCULOS
+                            VEÍCULOS
                         </small>
-
-                        <div class="card-number">
-                            {{ total_veiculos }}
+                         <div class="d-flex align-items-center gap-3">
+                             <div class="card-number">
+                                {{ total_veiculos }}
+                             </div>
+                              <h3 class="mb-0">
+                                    Total de Ativos
+                              </h3>
                         </div>
 
                     </div>
@@ -119,7 +123,7 @@ Dashboard
                                 {{ total_registros }}
                              </div>
                               <h3 class="mb-0">
-                                    Total de Registros Abertos
+                                    Total de Abertos
                               </h3>
                         </div>
                        
@@ -139,10 +143,15 @@ Dashboard
                         <small>
                             SERVIDORES
                         </small>
-
-                        <div class="card-number">
-                            {{ total_servidores }}
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="card-number">
+                                {{ total_servidores }}
+                            </div>
+                            <h3 class="mb-0">
+                                Total de Ativos
+                            </h3>
                         </div>
+                       
 
                     </div>
 
@@ -248,7 +257,7 @@ Dashboard
                                 <th>Placa</th>
                                 <th>Origem</th>
                                 <th>Destino</th>
-                                <th>KM</th>
+                                <th>Distância</th>
                                 <th>Status</th>
                                 
                             </tr>
