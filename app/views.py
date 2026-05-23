@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from .models import Servidor, Veiculo, RegistroSev, Servico
 
@@ -162,13 +163,143 @@ def registrar_sev(request):
         'servicos': servicos
     })
 
-
 def lista_sev(request):
+
     if not usuario_logado(request):
         return redirect('login')
 
-    registros = RegistroSevService.listar_registros_sev()
-    return render(request, 'lista_sev.html', {'registros': registros})
+   
+    busca = request.GET.get('busca', '')
+    status = request.GET.get('status', '')
+
+    data_inicio = request.GET.get('data_inicio', '')
+    data_fim = request.GET.get('data_fim', '')
+
+    filtro_local = request.GET.get('filtro_local', '')
+    cidade = request.GET.get('cidade', '')
+
+    registros = RegistroSev.objects.all()
+
+    if busca:
+
+        registros = registros.filter(
+
+            Q(servidor__nome_servidor__icontains=busca) |
+            Q(veiculo__placa__icontains=busca)|
+            Q(servico__nome_servico__icontains=busca)
+
+        )
+
+    if status:
+
+        registros = registros.filter(
+            status=status
+        )
+
+    if data_inicio and data_fim:
+
+        registros = registros.filter(
+
+            data_inicio__date__range=[data_inicio, data_fim]
+
+        )
+
+    if filtro_local and cidade:
+
+        if filtro_local == 'origem':
+
+            registros = registros.filter(
+
+                local_ori__icontains=cidade
+
+            )
+
+        elif filtro_local == 'destino':
+
+            registros = registros.filter(
+
+                local_dest__icontains=cidade
+
+            )
+
+    registros = registros.order_by('-data_inicio')
+
+    context = {
+
+        'registros': registros,
+
+        'busca': busca,
+        'status': status,
+
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+
+        'filtro_local': filtro_local,
+        'cidade': cidade,
+
+    }
+
+    return render(request, 'lista_sev.html', context)
+
+def editar_registro(request, id):
+
+    if not usuario_logado(request):
+        return redirect('login')
+
+    registro = RegistroSevService.buscar_registro(id)
+
+    if request.method == 'POST':
+
+        try:
+
+            RegistroSevService.editar_registro(
+                registro=registro,
+                local_dest=request.POST.get('local_dest'),
+                data_fim=request.POST.get('data_fim'),
+                km_fim=request.POST.get('km_fim')
+            )
+
+            messages.success(
+                request,
+                'Registro atualizado com sucesso.'
+            )
+
+        except ValidationError as e:
+
+            messages.error(
+                request,
+                e.message
+            )
+
+    return redirect('lista_sev')
+
+def finalizar_sev(request, id):
+
+    if not usuario_logado(request):
+        return redirect('login')
+    
+    registro = RegistroSev.objects.get(pk=id)
+
+    if not registro.destino or not registro.local_dest or not registro.data_fim or not registro.km_fim:
+        raise ValidationError("Preencha todos os campos antes de finalizar.")
+
+    RegistroSevService.finalizar_registro(id)
+
+    messages.success(request, 'Registro finalizado com sucesso.')
+
+    return redirect('lista_sev')
+
+
+def cancelar_sev(request, id):
+
+    if not usuario_logado(request):
+        return redirect('login')
+
+    RegistroSevService.cancelar_registro(id)
+
+    messages.success(request, 'Registro cancelado com sucesso.')
+
+    return redirect('lista_sev')
 
 
 def cadastrar_perfil(request):
