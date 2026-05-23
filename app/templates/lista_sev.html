@@ -1,110 +1,798 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Lista de Registros</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #eef1f5;
-            margin: 0;
-            padding: 20px 0;
-        }
+{% extends 'base.html' %}
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
+{% block title %}
+Registros
+{% endblock %}
 
-        .container {
-            width: 95%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+{% block content %}
 
-        .btn-novo {
-            display: inline-block;
-            background: #8e44ad;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 15px;
-            transition: 0.3s;
-        }
+<style>
 
-        .btn-novo:hover {
-            background: #732d91;
-        }
+    .page-title{
+        font-size:48px;
+        font-weight:800;
+        color:#111827;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-        }
+    .table-card{
+        background:white;
+        border-radius:16px;
+        overflow:hidden;
+    }
 
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-        }
+    .table thead th{
+        font-size:14px;
+        text-transform:uppercase;
+        letter-spacing:1px;
+        color:#9ca3af;
+        border:none;
+        position:sticky;
+        top:0;
+        background:white;
+        z-index:2;
+    }
 
-        th {
-            background: #8e44ad;
-            color: white;
-            font-weight: bold;
-        }
+    .table tbody td{
+        vertical-align:middle;
+        padding:18px 12px;
+        font-size:14px;
+    }
 
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
+    .tabela-scroll{
+        max-height:650px;
+        overflow-y:auto;
+    }
 
-        tr:hover {
-            background: #dcd0ea;
-        }
+    .status-badge{
+        padding:6px 12px;
+        border-radius:8px;
+        font-size:12px;
+        font-weight:600;
+    }
 
-        td {
-            color: #2c3e50;
-        }
-    </style>
-</head>
-<body>
+    .status-aberto{
+        background:#dcfce7;
+        color:#166534;
+    }
 
-<div class="container">
-    <h1>Registros de Serviços</h1>
-    <a href="/sev/nova/" class="btn-novo">➕ Novo Registro</a>
+    .status-finalizado{
+        background:#e0e7ff;
+        color:#3730a3;
+    }
 
-    <table>
-        <thead>
-            <tr>
-                <th>Servidor</th>
-                <th>Veículo</th>
-                <th>Origem</th>
-                <th>Destino</th>
-                <th>KM</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in registros %}
-            <tr>
-                <td>{{ r.servidor.nome_servidor }}</td>
-                <td>{{ r.veiculo.placa }}</td>
-                <td>{{ r.origem }}</td>
-                <td>{{ r.destino }}</td>
-                <td>{{ r.km_inicio }} - {{ r.km_fim }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" style="text-align:center; color:#888;">Nenhum registro encontrado</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    .status-cancelado{
+        background:#fee2e2;
+        color:#991b1b;
+    }
+
+    .search-input{
+        padding-left:40px;
+        border-radius:12px;
+    }
+
+    .search-icon{
+        position:absolute;
+        top:50%;
+        left:14px;
+        transform:translateY(-50%);
+        color:#9ca3af;
+        font-size:14px;
+        z-index:10;
+    }
+
+    .filtro-select,
+    .filtro-data{
+        border-radius:12px;
+    }
+
+    .campo-fixo{
+        background:#eef1f5 !important;
+        pointer-events:none;
+        cursor:not-allowed;
+        opacity:0.95;
+        border:1px solid #d6d9de;
+    }
+
+    .modal-confirmacao .modal-content{
+        border:none;
+        border-radius:20px;
+        overflow:hidden;
+    }
+
+    .confirmacao-header{
+        background:#17315c;
+        color:white;
+        padding:20px;
+        text-align:center;
+    }
+
+    .confirmacao-body{
+        padding:30px;
+        text-align:center;
+    }
+
+    .confirmacao-icon{
+        font-size:60px;
+        color:#f59e0b;
+        margin-bottom:15px;
+    }
+
+    .confirmacao-texto{
+        font-size:16px;
+        color:#4b5563;
+        line-height:1.6;
+    }
+
+    .confirmacao-footer{
+        padding:20px;
+        display:flex;
+        justify-content:center;
+        gap:12px;
+    }
+
+    .modal{
+        backdrop-filter:none !important;
+    }
+
+    .modal-backdrop.show{
+        opacity:0.6;
+    }
+
+    body.modal-open{
+        overflow:hidden;
+    }
+
+</style>
+
+<!-- TOPO -->
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h1 class="page-title">
+            Registros
+        </h1>
+
+        <p class="text-muted">
+            Lista de todos os registros de deslocamento
+        </p>
+
+    </div>
+
+    <a href="/sev/nova/" class="btn btn-primary px-4">
+
+        <i class="bi bi-plus-lg"></i>
+        Novo Registro
+
+    </a>
+
 </div>
 
-</body>
-</html>
+<!-- FILTROS -->
+
+<form method="GET" class="row g-3 mb-4 filtros-container">
+
+    <!-- BUSCA -->
+
+    <div class="col-md-3">
+
+        <div class="position-relative">
+
+            <i class="bi bi-search search-icon"></i>
+
+            <input type="text"
+                   name="busca"
+                   class="form-control search-input"
+                   placeholder="Buscar servidor, placa ou serviço"
+                   value="{{ busca }}">
+
+        </div>
+
+    </div>
+
+    <!-- STATUS -->
+
+    <div class="col-md-2">
+
+        <select name="status" class="form-select filtro-select">
+
+            <option value="">
+                Todos os status
+            </option>
+
+            <option value="ABERTO"
+                {% if status == 'ABERTO' %}selected{% endif %}>
+                Aberto
+            </option>
+
+            <option value="FINALIZADO"
+                {% if status == 'FINALIZADO' %}selected{% endif %}>
+                Finalizado
+            </option>
+
+            <option value="CANCELADO"
+                {% if status == 'CANCELADO' %}selected{% endif %}>
+                Cancelado
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- DATA INÍCIO -->
+
+    <div class="col-md-2">
+
+        <input type="date"
+               name="data_inicio"
+               class="form-control filtro-data"
+               value="{{ data_inicio }}">
+
+    </div>
+
+    <!-- DATA FIM -->
+
+    <div class="col-md-2">
+
+        <input type="date"
+               name="data_fim"
+               class="form-control filtro-data"
+               value="{{ data_fim }}">
+
+    </div>
+
+    <!-- LOCAL -->
+
+    <div class="col-md-1">
+
+        <select name="filtro_local"
+                class="form-select filtro-select">
+
+            <option value="">
+                Local
+            </option>
+
+            <option value="origem"
+                {% if filtro_local == 'origem' %}selected{% endif %}>
+                Origem
+            </option>
+
+            <option value="destino"
+                {% if filtro_local == 'destino' %}selected{% endif %}>
+                Destino
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- CIDADE -->
+
+    <div class="col-md-2">
+
+        <input type="text"
+               name="cidade"
+               class="form-control"
+               placeholder="Cidade"
+               value="{{ cidade }}">
+
+    </div>
+
+    <!-- BOTÃO -->
+
+    <div class="col-md-1">
+
+        <button class="btn btn-primary w-100">
+            <i class="bi bi-search"></i>
+        </button>
+
+    </div>
+
+</form>
+
+<!-- TABELA -->
+
+<div class="card table-card border-0 shadow-sm">
+
+    <div class="card-body p-0">
+
+        <div class="d-flex justify-content-between p-3">
+
+            <h6 class="text-muted">
+                REGISTROS DE DESLOCAMENTO
+            </h6>
+
+            <span class="badge bg-dark">
+                {{ registros|length }} registros
+            </span>
+
+        </div>
+
+        <div class="table-responsive tabela-scroll">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Servidor</th>
+                        <th>Veículo</th>
+                        <th>Serviço</th>
+                        <th>Origem</th>
+                        <th>Local Origem</th>
+                        <th>Data Início</th>
+                        <th>KM Início</th>
+                        <th>Destino</th>
+                        <th>Local Destino</th>
+                        <th>Data Fim</th>
+                        <th>KM Fim</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for r in registros %}
+
+                    <tr>
+
+                        <td>{{ r.servidor.nome_servidor }}</td>
+
+                        <td class="text-primary fw-bold">
+                            {{ r.veiculo.placa }}
+                        </td>
+
+                        <td>{{ r.servico.nome_servico }}</td>
+
+                        <td>{{ r.origem }}</td>
+
+                        <td>{{ r.local_ori }}</td>
+
+                        <td>{{ r.data_inicio|date:"d/m/Y" }}</td>
+
+                        <td class="fw-bold">
+                            {{ r.km_inicio }}
+                        </td>
+
+                        <td>{{ r.destino }}</td>
+
+                        <td>{{ r.local_dest }}</td>
+
+                        <td>
+                            {% if r.data_fim %}
+                                {{ r.data_fim|date:"d/m/Y" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="fw-bold">
+                            {% if r.km_fim %}
+                                {{ r.km_fim }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            {% if r.status == 'ABERTO' %}
+
+                                <span class="status-badge status-aberto">
+                                    Aberto
+                                </span>
+
+                            {% elif r.status == 'FINALIZADO' %}
+
+                                <span class="status-badge status-finalizado">
+                                    Finalizado
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-cancelado">
+                                    Cancelado
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                       <!-- AÇÕES -->
+                        <td>
+
+                            <div class="d-flex justify-content-center gap-2">
+
+                                <!-- EDITAR -->
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editarModal{{ r.id_sev }}">
+
+                                    <i class="bi bi-pencil-fill"></i>
+
+                                </button>
+
+                                {% if r.status == 'ABERTO' %}
+
+                                    <!-- FINALIZAR -->
+
+                                    {% if r.destino and r.local_dest and r.data_fim and r.km_fim %}
+
+                                        <a href="/sev/{{ r.id_sev }}/finalizar/"
+                                        class="btn btn-sm btn-outline-success">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                        </a>
+
+                                    {% else %}
+
+                                        <button
+                                            class="btn btn-sm btn-outline-secondary opacity-50"
+                                            disabled
+                                            title="Preencha os dados finais">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                        </button>
+
+                                    {% endif %}
+
+                                    <!-- CANCELAR -->
+
+                                    <a href="/sev/{{ r.id_sev }}/cancelar/"
+                                    class="btn btn-sm btn-outline-danger">
+
+                                        <i class="bi bi-x-circle-fill"></i>
+
+                                    </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+                    <!-- MODAL EDITAR -->
+
+                    <div class="modal fade"
+                        id="editarModal{{ r.id_sev }}"
+                        tabindex="-1">
+
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+                            <div class="modal-content border-0 shadow-lg">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+                                        Editar Registro
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <form method="POST"
+                                      id="formEditar{{ r.id_sev }}"
+                                      action="/sev/{{ r.id_sev }}/editar/">
+
+                                    {% csrf_token %}
+
+                                    <div class="modal-body">
+
+                                        <div class="row g-3">
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Servidor</label>
+                                                <input type="text"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.servidor.nome_servidor }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Veículo</label>
+                                                <input type="text"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.veiculo.placa }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Serviço</label>
+                                                <input type="text"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.servico.nome_servico }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Origem</label>
+                                                <input type="text"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.origem }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Local Origem</label>
+                                                <input type="text"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.local_ori }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Data Início</label>
+                                                <input type="text"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.data_inicio|date:'d/m/Y' }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">KM Início</label>
+                                                <input type="text"
+                                                       id="kmInicio{{ r.id_sev }}"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.km_inicio }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Destino</label>
+                                                <input type="text"
+                                                       class="form-control campo-fixo"
+                                                       value="{{ r.destino }}"
+                                                       readonly>
+                                            </div>
+
+                                            <div class="col-md-4">
+
+                                                <label class="form-label">
+                                                    Local Destino
+                                                </label>
+
+                                                <input type="text"
+                                                       name="local_dest"
+                                                       id="localDest{{ r.id_sev }}"
+                                                       class="form-control"
+                                                       onkeyup="validarFormulario('{{ r.id_sev }}')">
+
+                                            </div>
+
+                                            <div class="col-md-4">
+
+                                                <label class="form-label">
+                                                    Data Fim
+                                                </label>
+
+                                                <input type="date"
+                                                       id="dataFim{{ r.id_sev }}"
+                                                       name="data_fim"
+                                                       class="form-control"
+                                                       onchange="validarFormulario('{{ r.id_sev }}')">
+
+                                            </div>
+
+                                            <div class="col-md-4">
+
+                                                <label class="form-label">
+                                                    KM Fim
+                                                </label>
+
+                                                <input type="number"
+                                                       id="kmFim{{ r.id_sev }}"
+                                                       name="km_fim"
+                                                       class="form-control"
+                                                       onkeyup="validarFormulario('{{ r.id_sev }}')">
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+
+                                            Cancelar
+
+                                        </button>
+
+                                        <button type="button"
+                                                id="btnSalvar{{ r.id_sev }}"
+                                                class="btn btn-success"
+                                                disabled
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmarModal{{ r.id_sev }}">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Salvar
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- MODAL CONFIRMAÇÃO -->
+
+                    <div class="modal fade modal-confirmacao"
+                        id="confirmarModal{{ r.id_sev }}"
+                        tabindex="-1">
+
+                        <div class="modal-dialog modal-dialog-centered">
+
+                            <div class="modal-content">
+
+                                <div class="confirmacao-header">
+
+                                    <h4 class="mb-0">
+                                        Confirmar Salvamento
+                                    </h4>
+
+                                </div>
+
+                                <div class="confirmacao-body">
+
+                                    <div class="confirmacao-icon">
+
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                    </div>
+
+                                    <p class="confirmacao-texto">
+
+                                        Tem certeza que deseja salvar?<br>
+
+                                        Após salvar não será possível editar novamente.
+
+                                    </p>
+
+                                </div>
+
+                                <div class="confirmacao-footer">
+
+                                   <button type="button"
+                                            class="btn btn-light"
+                                            onclick="voltarFormulario('{{ r.id_sev }}')">
+
+                                        Cancelar
+
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-danger"
+                                            onclick="enviarFormulario('{{ r.id_sev }}')">
+
+                                        Sim, salvar
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="13"
+                            class="text-center p-4 text-muted">
+
+                            Nenhum registro encontrado
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    function validarFormulario(id){
+
+        const localDest = document.getElementById('localDest' + id);
+        const dataFim = document.getElementById('dataFim' + id);
+        const kmFim = document.getElementById('kmFim' + id);
+        const kmInicio = document.getElementById('kmInicio' + id);
+        const btn = document.getElementById('btnSalvar' + id);
+
+        const kmInicialValor = parseInt(kmInicio.value) || 0;
+        const kmFinalValor = parseInt(kmFim.value) || 0;
+
+        if(
+            localDest.value.trim() !== '' &&
+            dataFim.value.trim() !== '' &&
+            kmFim.value.trim() !== '' &&
+            kmFinalValor > kmInicialValor
+        ){
+
+            btn.disabled = false;
+            kmFim.classList.remove('border-danger');
+
+        }else{
+
+            btn.disabled = true;
+
+            if(
+                kmFim.value.trim() !== '' &&
+                kmFinalValor <= kmInicialValor
+            ){
+
+                kmFim.classList.add('border-danger');
+
+            }else{
+
+                kmFim.classList.remove('border-danger');
+
+            }
+
+        }
+
+    }
+
+    function voltarFormulario(id){
+
+        const confirmarModal = bootstrap.Modal.getInstance(
+            document.getElementById('confirmarModal' + id)
+        );
+
+        confirmarModal.hide();
+
+        const editarModal = new bootstrap.Modal(
+            document.getElementById('editarModal' + id)
+        );
+
+        editarModal.show();
+
+    }
+
+    function enviarFormulario(id){
+
+        document.getElementById(
+            'formEditar' + id
+        ).submit();
+
+    }
+
+</script>
+
+{% endblock %}
