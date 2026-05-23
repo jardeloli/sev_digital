@@ -113,12 +113,14 @@ class RegistroSev(models.Model):
     servico = models.ForeignKey(Servico, on_delete=models.CASCADE)
 
     origem = models.CharField(max_length=25)
+    local_ori=models.CharField(max_length=100,blank=True, default='')
     data_inicio = models.DateTimeField()
     km_inicio = models.IntegerField()
 
     destino = models.CharField(max_length=25)
-    data_fim = models.DateTimeField()
-    km_fim = models.IntegerField()
+    local_dest = models.CharField(max_length=100,null=True,blank=True, default='')
+    data_fim = models.DateTimeField(null=True,blank=True, default='')
+    km_fim = models.IntegerField(null=True, blank=True, default='')
 
     status = models.CharField(
         max_length=12,
@@ -126,12 +128,20 @@ class RegistroSev(models.Model):
         default='ABERTO'
     )
     
-    #Calcula a quilometragem rodada
+   # Calcula a quilometragem rodada
     def km_rodado(self):
-        return  self.km_fim - self.km_inicio  
 
+        if self.km_fim is None:
+            return 0
+
+        return self.km_fim - self.km_inicio
     #Calcula a quantidade de horas trabalhadas
+    # Calcula a quantidade de horas trabalhadas
     def horas_trabalhadas(self):
+
+        if self.data_fim is None:
+            return 0
+
         return (self.data_fim - self.data_inicio).total_seconds() / 3600
 
     #Retorna uma string representando o registro de serviço
