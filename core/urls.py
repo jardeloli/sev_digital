@@ -29,5 +29,8 @@ urlpatterns = [
     path('sev/', views.lista_sev, name='lista_sev'),
     path('perfil/novo/',views.cadastrar_perfil,name='cadastrar_perfil'),
     path('perfis/',views.lista_perfis,name='lista_perfis'),
-    path('logout/',views.logout_view,name='sair')
+    path('logout/',views.logout_view,name='sair'),
+    path('sev/<int:id>/finalizar/', views.finalizar_sev, name='finalizar_sev'),
+    path('sev/<int:id>/cancelar/', views.cancelar_sev, name='cancelar_sev'),
+    path('sev/<int:id>/editar/',views.editar_registro,name='editar_registro')
 ]
