@@ -128,6 +128,8 @@ class RegistroSev(models.Model):
         default='ABERTO'
     )
     
+    motivo_cancelamento = models.TextField(blank=True, null=True)
+
    # Calcula a quilometragem rodada
     def km_rodado(self):
 
