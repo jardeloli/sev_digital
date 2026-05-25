@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Editar Usuário{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6">
+        <div class="mb-4"><h1 class="fw-bold mb-1">Editar Usuário</h1><p class="text-muted mb-0">Atualize seus dados de acesso</p></div>
+        <div class="card border-0 shadow-sm"><div class="card-body p-4">
+            {% for message in messages %}<div class="alert alert-info">{{ message }}</div>{% endfor %}
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-8"><label class="form-label fw-semibold" for="nome">Nome</label><input class="form-control" type="text" name="nome" id="nome" value="{{ usuario.nome_servidor }}" required></div>
+                    <div class="col-md-4"><label class="form-label fw-semibold">SIAPE</label><input class="form-control" type="text" value="{{ usuario.siape }}" disabled></div>
+                    <div class="col-md-6"><label class="form-label fw-semibold" for="dt_nasc">Data de nascimento</label><input class="form-control" type="date" name="dt_nasc" id="dt_nasc" value="{{ usuario.data_nascimento|date:'Y-m-d' }}" required></div>
+                    <div class="col-md-6"><label class="form-label fw-semibold" for="cpf">CPF</label><input class="form-control" type="text" name="cpf" id="cpf" value="{{ usuario.cpf }}" required></div>
+                    <div class="col-md-6"><label class="form-label fw-semibold" for="email">Email</label><input class="form-control" type="email" name="email" id="email" value="{{ usuario.email }}" required></div>
+                    <div class="col-md-6"><label class="form-label fw-semibold" for="senha">Nova senha</label><input class="form-control" type="password" name="senha" id="senha" placeholder="Deixe em branco para manter"></div>
+                </div>
+                <button class="btn text-white w-100 mt-4" style="background:#17315c;" type="submit"><i class="bi bi-check-circle-fill me-2"></i>Salvar alterações</button>
+            </form>
+        </div></div>
+    </div>
+</div>
+{% endblock %}

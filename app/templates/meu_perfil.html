@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Meu Perfil{% endblock %}
+{% block content %}
+<div class="mb-4"><h1 class="fw-bold mb-1">Meu Perfil</h1><p class="text-muted mb-0">Dados da sua conta e permissões do seu perfil</p></div>
+{% for message in messages %}<div class="alert alert-info">{{ message }}</div>{% endfor %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#17315c;color:white;font-size:28px;"><i class="bi bi-person-fill"></i></div>
+                <div><h4 class="fw-bold mb-0">{{ usuario.nome_servidor }}</h4><p class="text-muted mb-0">{{ usuario.perfil.nome_perfil }}</p></div>
+            </div>
+            <dl class="row mb-0">
+                <dt class="col-4">SIAPE</dt><dd class="col-8">{{ usuario.siape }}</dd>
+                <dt class="col-4">Email</dt><dd class="col-8">{{ usuario.email }}</dd>
+                <dt class="col-4">CPF</dt><dd class="col-8">{{ usuario.cpf }}</dd>
+                <dt class="col-4">Status</dt><dd class="col-8">{{ usuario.get_status_display|default:usuario.status }}</dd>
+            </dl>
+            <a class="btn text-white w-100 mt-4" style="background:#17315c;" href="{% url 'editar_usuario' %}"><i class="bi bi-pencil-square me-2"></i>Editar usuário</a>
+        </div></div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <h5 class="fw-bold mb-3">Permissões</h5>
+            <div class="row g-3">
+                {% for vinculo in vinculos %}
+                    <div class="col-md-6"><div class="border rounded p-3 h-100"><p class="fw-semibold mb-1">{{ vinculo.permissao.nome_permissao }}</p><small class="text-muted">{{ vinculo.permissao.descricao|default:'Sem descrição' }}</small></div></div>
+                {% empty %}
+                    <div class="col-12"><p class="text-muted mb-0">Nenhuma permissão vinculada ao seu perfil.</p></div>
+                {% endfor %}
+            </div>
+        </div></div>
+    </div>
+</div>
+{% endblock %}

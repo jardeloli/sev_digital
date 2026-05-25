@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
-from .models import Servidor, Veiculo, RegistroSev, Servico
+from .models import Servidor, Veiculo, RegistroSev, Servico, Perfil, Permissao, PerfilPermissao
 
 from .services.auth_service import AuthService
 from .services.veiculo_service import VeiculoService
@@ -14,6 +14,26 @@ from app.services.perfil_service import PerfilService
 
 def usuario_logado(request):
     return request.session.get('user_id')
+
+
+def usuario_atual(request):
+    user_id = usuario_logado(request)
+
+    if not user_id:
+        return None
+
+    return Servidor.objects.select_related('perfil').filter(siape=user_id).first()
+
+
+def usuario_admin(request):
+    usuario = usuario_atual(request)
+    return usuario and usuario.perfil.nome_perfil == 'Admin'
+
+
+def base_context(request, **extra):
+    context = {'usuario': usuario_atual(request)}
+    context.update(extra)
+    return context
 
 
 def login_view(request):
@@ -94,20 +114,100 @@ def cadastrar_veiculo(request):
         except ValidationError as e:
             messages.error(request, e.message)
 
-    return render(request, 'cadastrar_veiculo.html')
+    return render(request, 'cadastrar_veiculo.html', base_context(request))
 
 
 def lista_veiculos(request):
     if not usuario_logado(request):
         return redirect('login')
 
-    veiculos = VeiculoService.listar_veiculos()
-    return render(request, 'lista_veiculos.html', {'veiculos': veiculos})
+    veiculos = VeiculoService.listar_veiculos().order_by('placa')
+
+    context = base_context(
+        request,
+        veiculos=veiculos,
+        total_veiculos=veiculos.count(),
+        total_ativos=Veiculo.objects.filter(status='ATIVO').count(),
+        total_manutencao=Veiculo.objects.filter(status='MANUTENCAO').count(),
+        total_em_uso=Veiculo.objects.filter(status='EM_USO').count()
+    )
+
+    return render(request, 'lista_veiculos.html', context)
+
+
+def lista_servidores(request):
+    if not usuario_logado(request):
+        return redirect('login')
+
+    servidores = Servidor.objects.select_related('perfil').order_by('nome_servidor')
+
+    return render(
+        request,
+        'lista_servidores.html',
+        base_context(request, servidores=servidores)
+    )
+
+
+def lista_servicos(request):
+    if not usuario_logado(request):
+        return redirect('login')
+
+    servicos = ServicoService.listar_servicos().order_by('nome_servico')
+
+    return render(
+        request,
+        'lista_servicos.html',
+        base_context(request, servicos=servicos)
+    )
+
+
+def cadastrar_servico(request):
+    if not usuario_logado(request):
+        return redirect('login')
+
+    if request.method == 'POST':
+        try:
+            ServicoService.criar_servico(
+                nome_servico=request.POST.get('nome_servico'),
+                descricao=request.POST.get('descricao')
+            )
+
+            messages.success(request, 'Serviço cadastrado com sucesso.')
+            return redirect('lista_servicos')
+
+        except ValidationError as e:
+            messages.error(request, e.message)
+
+    return render(request, 'cadastrar_servico.html', base_context(request))
 
 
 def cadastrar_servidor(request):
+    primeiro_cadastro = not Servidor.objects.exists()
+
+    if not primeiro_cadastro and not usuario_logado(request):
+        return redirect('login')
+
+    if not primeiro_cadastro and not usuario_admin(request):
+        messages.error(request, 'Apenas administradores podem cadastrar servidores.')
+        return redirect('dashboard')
+
+    perfis = PerfilService.listar_perfis()
+
+    if primeiro_cadastro:
+        perfis = perfis.filter(nome_perfil='Admin')
+
     if request.method == 'POST':
         try:
+            perfil_id = request.POST.get('perfil_id')
+
+            if primeiro_cadastro:
+                perfil_admin = Perfil.objects.filter(nome_perfil='Admin').first()
+
+                if not perfil_admin:
+                    raise ValidationError('Perfil Admin nao encontrado. Execute as migrations.')
+
+                perfil_id = perfil_admin.id_perfil
+
             ServidorService.criar_servidor(
                 siape=request.POST.get('siape'),
                 nome=request.POST.get('nome'),
@@ -115,16 +215,19 @@ def cadastrar_servidor(request):
                 data_nascimento=request.POST.get('dt_nasc'),
                 email=request.POST.get('email'),
                 senha=request.POST.get('senha'),
-                id_perfil=request.POST.get('perfil_id')
+                id_perfil=perfil_id
             )
 
             messages.success(request, 'Conta criada com sucesso')
-            return redirect('login')
+            return redirect('login' if primeiro_cadastro else 'dashboard')
 
         except ValidationError as e:
             messages.error(request, e.message)
 
-    return render(request, 'cadastrar_servidor.html')
+    return render(request, 'cadastrar_servidor.html', {
+        'perfis': perfis,
+        'primeiro_cadastro': primeiro_cadastro
+    })
 
 
 def registrar_sev(request):
@@ -142,11 +245,13 @@ def registrar_sev(request):
                 placa=request.POST.get('veiculo'),
                 id_servico=request.POST.get('servico'),
                 origem=request.POST.get('origem'),
+                local_ori=request.POST.get('local_ori'),
                 data_inicio=request.POST.get('data_inicio'),
-                km_inicio=int(request.POST.get('km_inicio')),
-                detino=request.POST.get('destino'),
+                km_inicio=request.POST.get('km_inicio'),
+                destino=request.POST.get('destino'),
+                local_dest=request.POST.get('local_dest'),
                 data_fim=request.POST.get('data_fim'),
-                km_fim=int(request.POST.get('km_fim')),
+                km_fim=request.POST.get('km_fim'),
             )
 
             messages.success(request, 'Registro criado com sucesso')
@@ -307,6 +412,10 @@ def cadastrar_perfil(request):
     if not usuario_logado(request):
         return redirect('login')
 
+    if not usuario_admin(request):
+        messages.error(request, 'Apenas administradores podem cadastrar perfis.')
+        return redirect('dashboard')
+
     if request.method == 'POST':
 
         try:
@@ -342,11 +451,95 @@ def cadastrar_perfil(request):
     )
 
 def lista_perfis(request):
+    if not usuario_logado(request):
+        return redirect('login')
+
+    if not usuario_admin(request):
+        messages.error(request, 'Apenas administradores podem visualizar perfis.')
+        return redirect('dashboard')
 
     perfis = PerfilService.listar_perfis()
 
     return render(
         request,
         'lista_perfis.html',
-        {'perfis': perfis}
+        base_context(request, perfis=perfis)
+    )
+
+
+def lista_permissoes(request):
+    if not usuario_logado(request):
+        return redirect('login')
+
+    if not usuario_admin(request):
+        messages.error(request, 'Apenas administradores podem visualizar permissoes.')
+        return redirect('dashboard')
+
+    permissoes = Permissao.objects.all().order_by('nome_permissao')
+    vinculos = PerfilPermissao.objects.select_related('perfil', 'permissao').order_by(
+        'perfil__nome_perfil',
+        'permissao__nome_permissao'
+    )
+
+    return render(
+        request,
+        'lista_permissoes.html',
+        base_context(request, permissoes=permissoes, vinculos=vinculos)
+    )
+
+
+def editar_usuario(request):
+    if not usuario_logado(request):
+        return redirect('login')
+
+    usuario = usuario_atual(request)
+
+    if request.method == 'POST':
+        try:
+            email = request.POST.get('email')
+            cpf = request.POST.get('cpf')
+
+            if Servidor.objects.exclude(pk=usuario.pk).filter(email=email).exists():
+                raise ValidationError('Email ja existe.')
+
+            if Servidor.objects.exclude(pk=usuario.pk).filter(cpf=cpf).exists():
+                raise ValidationError('CPF ja existe.')
+
+            usuario.nome_servidor = request.POST.get('nome')
+            usuario.cpf = cpf
+            usuario.email = email
+            usuario.data_nascimento = ServidorService._parse_data_nascimento(
+                request.POST.get('dt_nasc')
+            )
+
+            senha = request.POST.get('senha')
+            if senha:
+                usuario.set_password(senha)
+
+            usuario.save()
+            messages.success(request, 'Usuario atualizado com sucesso.')
+            return redirect('meu_perfil')
+
+        except ValidationError as e:
+            messages.error(request, e.message)
+
+    return render(
+        request,
+        'editar_usuario.html',
+        base_context(request)
+    )
+
+
+def meu_perfil(request):
+    if not usuario_logado(request):
+        return redirect('login')
+
+    vinculos = PerfilPermissao.objects.select_related('permissao').filter(
+        perfil=usuario_atual(request).perfil
+    ).order_by('permissao__nome_permissao')
+
+    return render(
+        request,
+        'meu_perfil.html',
+        base_context(request, vinculos=vinculos)
     )

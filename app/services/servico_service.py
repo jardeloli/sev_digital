@@ -17,10 +17,10 @@ class ServicoService:
         return servico
     
     def deletar_servico(nome_servico):
-        if not Servico.objects.filter(pk=nome_servico).exists():
+        if not Servico.objects.filter(nome_servico=nome_servico).exists():
             raise ValidationError(f"Serviço com nome '{nome_servico}' não existe.")
         
-        Servico.objects.get(pk=nome_servico).delete()
+        Servico.objects.get(nome_servico=nome_servico).delete()
 
         return "Serviço deletado com sucesso."
     
@@ -28,8 +28,8 @@ class ServicoService:
         return Servico.objects.all()
     
     def buscar_servico(nome_servico):
-        if not Servico.objects.filter(pk=nome_servico).exists():
+        if not Servico.objects.filter(nome_servico=nome_servico).exists():
             raise ValidationError(f"Serviço com nome '{nome_servico}' não existe.") 
         
-        return Servico.objects.get(pk=nome_servico)
+        return Servico.objects.get(nome_servico=nome_servico)
     

@@ -1,108 +1,115 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Lista de Veículos</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #eef1f5;
-            margin: 0;
-            padding: 20px 0;
-        }
+{% extends 'base.html' %}
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
+{% block title %}Veiculos{% endblock %}
 
-        .container {
-            width: 95%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+{% block content %}
+<style>
+    .metric-card {
+        border: none;
+        border-radius: 14px;
+        color: white;
+        padding: 10px;
+    }
 
-        .btn-novo {
-            display: inline-block;
-            background: #3498db;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 15px;
-            transition: 0.3s;
-        }
+    .metric-main { background:#2d3350; border-top:4px solid #84cc16; }
+    .metric-active { background:#1d4376; border-top:4px solid #3b82f6; }
+    .metric-maintenance { background:#44205f; border-top:4px solid #d946ef; }
 
-        .btn-novo:hover {
-            background: #2980b9;
-        }
+    .metric-number {
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1;
+    }
+</style>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-        }
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="fw-bold mb-1">Veiculos</h1>
+        <p class="text-muted mb-0">Visao geral da frota cadastrada</p>
+    </div>
 
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-        }
-
-        th {
-            background: #3498db;
-            color: white;
-            font-weight: bold;
-        }
-
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        tr:hover {
-            background: #d0e4f7;
-        }
-
-        td {
-            color: #2c3e50;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>Veículos</h1>
-    <a href="/veiculos/novo/" class="btn-novo">➕ Novo Veículo</a>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Placa</th>
-                <th>Modelo</th>
-                <th>Marca</th>
-                <th>Ano</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for v in veiculos %}
-            <tr>
-                <td>{{ v.placa }}</td>
-                <td>{{ v.modelo }}</td>
-                <td>{{ v.marca }}</td>
-                <td>{{ v.ano }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" style="text-align:center; color:#888;">Nenhum veículo cadastrado</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <a href="{% url 'cadastrar_veiculo' %}" class="btn text-white" style="background:#17315c;">
+        <i class="bi bi-plus-square-fill me-2"></i>
+        Novo Veiculo
+    </a>
 </div>
 
-</body>
-</html>
+{% for message in messages %}
+    <div class="alert alert-info">{{ message }}</div>
+{% endfor %}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card metric-card metric-main">
+            <div class="card-body">
+                <small>FROTA</small>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="metric-number">{{ total_veiculos }}</div>
+                    <h5 class="mb-0">Total de veiculos</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card metric-card metric-active">
+            <div class="card-body">
+                <small>ATIVOS</small>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="metric-number">{{ total_ativos }}</div>
+                    <h5 class="mb-0">Disponiveis</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card metric-card metric-maintenance">
+            <div class="card-body">
+                <small>MANUTENCAO</small>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="metric-number">{{ total_manutencao }}</div>
+                    <h5 class="mb-0">Em manutencao</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Placa</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Ano</th>
+                        <th>KM Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in veiculos %}
+                        <tr>
+                            <td class="text-primary fw-bold">{{ v.placa }}</td>
+                            <td>{{ v.marca }}</td>
+                            <td>{{ v.modelo }}</td>
+                            <td>{{ v.ano }}</td>
+                            <td>{{ v.km_total }} km</td>
+                            <td>{{ v.get_status_display|default:v.status }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                Nenhum veiculo cadastrado.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

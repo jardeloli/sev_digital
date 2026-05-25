@@ -252,7 +252,7 @@
                     <li class="nav-item">
 
                         <a class="nav-link {% if request.path == '/servidores/' %}active{% endif %}"
-                           href="/servidores/">
+                           href="{% url 'lista_servidores' %}">
 
                             <i class="bi bi-people-fill"></i>
                             Servidores
@@ -263,8 +263,8 @@
 
                     <li class="nav-item">
 
-                        <a class="nav-link {% if request.path == '/servidores/' %}active{% endif %}"
-                           href="/servidores/">
+                        <a class="nav-link {% if request.path == '/servicos/' %}active{% endif %}"
+                           href="{% url 'lista_servicos' %}">
 
                             <i class="bi bi-tools"></i>
                             Serviços
@@ -290,21 +290,21 @@
                     <ul class="dropdown-menu-custom">
 
                         <li>
-                            <a href="/perfis/">
+                            <a href="{% url 'lista_perfis' %}">
                                 <i class="bi bi-person-badge-fill"></i>
                                 Perfil
                             </a>
                         </li>
 
                         <li>
-                            <a href="/permissoes/">
+                            <a href="{% url 'lista_permissoes' %}">
                                 <i class="bi bi-shield-lock-fill"></i>
                                 Permissões
                             </a>
                         </li>
 
                         <li>
-                            <a href="/usuarios/editar/">
+                            <a href="{% url 'editar_usuario' %}">
                                 <i class="bi bi-pencil-square"></i>
                                 Editar Usuário
                             </a>
@@ -341,7 +341,7 @@
                     <ul class="dropdown-menu-custom">
 
                         <li>
-                            <a href="/perfil/">
+                            <a href="{% url 'meu_perfil' %}">
                                 <i class="bi bi-person-circle"></i>
                                 Meu Perfil
                             </a>

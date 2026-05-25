@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Permissões{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="fw-bold mb-1">Permissões</h1>
+    <p class="text-muted mb-0">Permissões disponíveis e vínculos com perfis</p>
+</div>
+{% for message in messages %}<div class="alert alert-info">{{ message }}</div>{% endfor %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <h5 class="fw-bold mb-3">Permissões</h5>
+            <div class="table-responsive"><table class="table align-middle mb-0">
+                <thead><tr><th>ID</th><th>Nome</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    {% for permissao in permissoes %}
+                        <tr><td>{{ permissao.id_permissao }}</td><td class="fw-semibold">{{ permissao.nome_permissao }}</td><td>{{ permissao.descricao|default:'-' }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted py-4">Nenhuma permissão encontrada.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table></div>
+        </div></div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <h5 class="fw-bold mb-3">Permissões por perfil</h5>
+            <div class="table-responsive"><table class="table align-middle mb-0">
+                <thead><tr><th>Perfil</th><th>Permissão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    {% for vinculo in vinculos %}
+                        <tr><td class="fw-semibold">{{ vinculo.perfil.nome_perfil }}</td><td>{{ vinculo.permissao.nome_permissao }}</td><td>{{ vinculo.permissao.descricao|default:'-' }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted py-4">Nenhum vínculo encontrado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table></div>
+        </div></div>
+    </div>
+</div>
+{% endblock %}

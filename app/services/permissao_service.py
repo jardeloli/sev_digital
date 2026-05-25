@@ -47,12 +47,12 @@ class PermissaoService:
         perfil = Perfil.objects.get(pk=perfil_id)
         permissao = Permissao.objects.get(pk=permissao_id)
 
-        if PerfilPermissao.objects.filter(id_perfil=perfil, id_permissao=permissao).exists():
+        if PerfilPermissao.objects.filter(perfil=perfil, permissao=permissao).exists():
             raise ValidationError("Permissão já associada ao perfil.")
         
         perfil_permissao = PerfilPermissao.objects.create(
-            id_perfil=perfil,
-            id_permissao=permissao
+            perfil=perfil,
+            permissao=permissao
         )
 
         perfil_permissao.save()
@@ -69,9 +69,9 @@ class PermissaoService:
         perfil = Perfil.objects.get(pk=perfil_id)
         permissao = Permissao.objects.get(pk=permissao_id)
 
-        if not PerfilPermissao.objects.filter(id_perfil=perfil, id_permissao=permissao).exists():
+        if not PerfilPermissao.objects.filter(perfil=perfil, permissao=permissao).exists():
             raise ValidationError("Permissão não associada ao perfil.")
         
-        PerfilPermissao.objects.filter(id_perfil=perfil, id_permissao=permissao).delete()
+        PerfilPermissao.objects.filter(perfil=perfil, permissao=permissao).delete()
 
         return "Permissão desassociada do perfil com sucesso."
