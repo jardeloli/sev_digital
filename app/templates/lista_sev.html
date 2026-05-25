@@ -4,6 +4,9 @@
 Registros
 {% endblock %}
 
+{% load humanize %}
+{% load l10n %}
+
 {% block content %}
 
 <style>
@@ -36,11 +39,6 @@ Registros
         vertical-align:middle;
         padding:18px 12px;
         font-size:14px;
-    }
-
-    .tabela-scroll{
-        max-height:650px;
-        overflow-y:auto;
     }
 
     .status-badge{
@@ -135,14 +133,48 @@ Registros
     }
 
     .modal-backdrop.show{
-        opacity:0.6;
+        opacity:0.3;
     }
 
     body.modal-open{
         overflow:hidden;
     }
 
-</style>
+    .btn-paginacao{
+
+        background:#17315c;
+        color:white;
+        border:none;
+        border-radius:12px;
+        font-weight:600;
+        transition:0.2s;
+    }
+
+    .btn-paginacao:hover{
+
+        background:#24457c;
+        color:white;
+        transform:translateY(-1px);
+    }
+
+    .btn-pagina-atual{
+
+        color:rgb(0, 0, 0);
+        border-radius:12px;
+        font-weight:700;
+        cursor:default;
+    }
+
+    .btn-limpar{
+        border-radius:12px;
+        background:#6b7280;
+        border:none;
+    }
+
+    .btn-limpar:hover{
+        background:#4b5563;
+    }
+    </style>
 
 <!-- TOPO -->
 
@@ -289,6 +321,17 @@ Registros
 
     </div>
 
+    <div class="col-md-1">
+
+        <a href="/sev/"
+        class="btn btn-secondary w-100 btn-limpar">
+
+            <i class="bi bi-x-lg"></i>
+
+        </a>
+
+    </div>
+
 </form>
 
 <!-- TABELA -->
@@ -304,12 +347,12 @@ Registros
             </h6>
 
             <span class="badge bg-dark">
-                {{ registros|length }} registros
+                {{ registros.paginator.count }} registros
             </span>
 
         </div>
 
-        <div class="table-responsive tabela-scroll">
+        <div class="table-responsive">
 
             <table class="table align-middle mb-0">
 
@@ -328,8 +371,8 @@ Registros
                         <th>Local Destino</th>
                         <th>Data Fim</th>
                         <th>KM Fim</th>
-                        <th>Status</th>
-                        <th>Ações</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Ações</th>
 
                     </tr>
 
@@ -356,7 +399,7 @@ Registros
                         <td>{{ r.data_inicio|date:"d/m/Y" }}</td>
 
                         <td class="fw-bold">
-                            {{ r.km_inicio }}
+                            {{ r.km_inicio|intcomma }}
                         </td>
 
                         <td>{{ r.destino }}</td>
@@ -373,7 +416,7 @@ Registros
 
                         <td class="fw-bold">
                             {% if r.km_fim %}
-                                {{ r.km_fim }}
+                                {{ r.km_fim|intcomma }}
                             {% else %}
                                 -
                             {% endif %}
@@ -404,55 +447,68 @@ Registros
                         </td>
 
                        <!-- AÇÕES -->
-                        <td>
+                       <td>
 
                             <div class="d-flex justify-content-center gap-2">
 
-                                <!-- EDITAR -->
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-outline-warning"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editarModal{{ r.id_sev }}">
-
-                                    <i class="bi bi-pencil-fill"></i>
-
-                                </button>
-
                                 {% if r.status == 'ABERTO' %}
 
-                                    <!-- FINALIZAR -->
+                                    <!-- EDITAR LIBERADO -->
+                                    <button
+                                        class="btn btn-sm btn-outline-warning"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editarModal{{ r.id_sev }}">
 
-                                    {% if r.destino and r.local_dest and r.data_fim and r.km_fim %}
+                                        <i class="bi bi-pencil-fill"></i>
 
-                                        <a href="/sev/{{ r.id_sev }}/finalizar/"
-                                        class="btn btn-sm btn-outline-success">
+                                    </button>
 
-                                            <i class="bi bi-check-circle-fill"></i>
+                                    <!-- CANCELAR LIBERADO -->
+                                   <button
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#cancelarModal{{ r.id_sev }}">
 
-                                        </a>
+                                        <i class="bi bi-x-circle-fill"></i>
 
-                                    {% else %}
+                                   </button>
 
+                                {% else %}
+
+                                    <!-- EDITAR BLOQUEADO -->
+                                    <button
+                                        class="btn btn-sm btn-outline-secondary opacity-50"
+                                        disabled
+                                        title="Registro já finalizado/cancelado">
+
+                                        <i class="bi bi-pencil-fill"></i>
+
+                                    </button>
+
+                                    <!-- CANCELAR BLOQUEADO -->
+                                    <button
+                                        class="btn btn-sm btn-outline-secondary opacity-50"
+                                        disabled
+                                        title="Registro já finalizado/cancelado">
+
+                                        <i class="bi bi-x-circle-fill"></i>
+
+                                    </button>
+
+                                    {% if r.status == 'CANCELADO' %}
+
+                                        <!-- VISUALIZAR MOTIVO -->
                                         <button
-                                            class="btn btn-sm btn-outline-secondary opacity-50"
-                                            disabled
-                                            title="Preencha os dados finais">
+                                            class="btn btn-sm btn-outline-dark"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#motivoModal{{ r.id_sev }}"
+                                            title="Visualizar motivo">
 
-                                            <i class="bi bi-check-circle-fill"></i>
+                                            <i class="bi bi-chat-left-text-fill"></i>
 
                                         </button>
 
                                     {% endif %}
-
-                                    <!-- CANCELAR -->
-
-                                    <a href="/sev/{{ r.id_sev }}/cancelar/"
-                                    class="btn btn-sm btn-outline-danger">
-
-                                        <i class="bi bi-x-circle-fill"></i>
-
-                                    </a>
 
                                 {% endif %}
 
@@ -478,7 +534,7 @@ Registros
 
                                     <button type="button"
                                             class="btn-close"
-                                            data-bs-dismiss="modal">
+                                            onclick="fecharModalEdicao('{{ r.id_sev }}')">
                                     </button>
 
                                 </div>
@@ -608,12 +664,11 @@ Registros
 
                                         <button type="button"
                                                 class="btn btn-secondary"
-                                                data-bs-dismiss="modal">
+                                                onclick="fecharModalEdicao('{{ r.id_sev }}')">
 
                                             Cancelar
 
                                         </button>
-
                                         <button type="button"
                                                 id="btnSalvar{{ r.id_sev }}"
                                                 class="btn btn-success"
@@ -635,6 +690,135 @@ Registros
                         </div>
 
                     </div>
+                    <!-- MODAL CANCELAR -->
+
+                    <div class="modal fade"
+                        id="cancelarModal{{ r.id_sev }}"
+                        tabindex="-1">
+
+                        <div class="modal-dialog modal-dialog-centered">
+
+                            <div class="modal-content border-0 shadow-lg">
+
+                                <div class="modal-header bg-danger text-white">
+
+                                    <h5 class="modal-title">
+                                        Cancelar Registro
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <form method="POST"
+                                    action="/sev/{{ r.id_sev }}/cancelar/">
+
+                                    {% csrf_token %}
+
+                                    <div class="modal-body">
+
+                                        <label class="form-label">
+                                            Motivo do cancelamento
+                                        </label>
+
+                                        <textarea
+                                            name="motivo_cancelamento"
+                                            id="motivo{{ r.id_sev }}"
+                                            class="form-control"
+                                            rows="4"
+                                            placeholder="Informe o motivo..."
+                                            onkeyup="validarCancelamento('{{ r.id_sev }}')"></textarea>
+
+                                        <small class="text-muted">
+                                            Mínimo de 15 caracteres
+                                        </small>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+
+                                            Voltar
+
+                                        </button>
+
+                                        <button type="submit"
+                                                id="btnCancelar{{ r.id_sev }}"
+                                                class="btn btn-danger"
+                                                disabled>
+
+                                            Confirmar Cancelamento
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- MODAL MOTIVO CANCELAMENTO -->
+
+                    <div class="modal fade"
+                        id="motivoModal{{ r.id_sev }}"
+                        tabindex="-1">
+
+                        <div class="modal-dialog modal-dialog-centered">
+
+                            <div class="modal-content border-0 shadow-lg">
+
+                                <div class="modal-header bg-danger text-white">
+
+                                    <h5 class="modal-title">
+
+                                        Motivo do Cancelamento
+
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <p style="white-space: pre-line;">
+
+                                        {{ r.motivo_cancelamento }}
+
+                                    </p>
+
+                                </div>
+
+                                <div class="modal-footer">
+
+                                    <button type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">
+
+                                        Fechar
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                     <!-- MODAL CONFIRMAÇÃO -->
 
@@ -649,7 +833,7 @@ Registros
                                 <div class="confirmacao-header">
 
                                     <h4 class="mb-0">
-                                        Confirmar Salvamento
+                                        Confirmar Finalização de Registro
                                     </h4>
 
                                 </div>
@@ -664,9 +848,9 @@ Registros
 
                                     <p class="confirmacao-texto">
 
-                                        Tem certeza que deseja salvar?<br>
+                                        Tem certeza que deseja finalizar o registro?<br>
 
-                                        Após salvar não será possível editar novamente.
+                                        Após finalizar, não será possível editar novamente.
 
                                     </p>
 
@@ -676,17 +860,16 @@ Registros
 
                                    <button type="button"
                                             class="btn btn-light"
-                                            onclick="voltarFormulario('{{ r.id_sev }}')">
+                                            onclick="fecharConfirmacao('{{ r.id_sev }}')">
 
                                         Cancelar
 
                                     </button>
-
                                     <button type="button"
                                             class="btn btn-danger"
                                             onclick="enviarFormulario('{{ r.id_sev }}')">
 
-                                        Sim, salvar
+                                        Sim, finalizar
 
                                     </button>
 
@@ -716,6 +899,53 @@ Registros
                 </tbody>
 
             </table>
+            <!-- PAGINAÇÃO -->
+
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
+
+                {% if registros.has_previous %}
+
+                    <a href="?page=1"
+                    class="btn btn-paginacao">
+
+                        Primeira
+
+                    </a>
+
+                    <a href="?page={{ registros.previous_page_number }}"
+                    class="btn btn-paginacao">
+
+                        ← Anterior
+
+                    </a>
+
+                {% endif %}
+
+                <span class="btn btn-pagina-atual">
+
+                    Página {{ registros.number }} de {{ registros.paginator.num_pages }}
+
+                </span>
+
+                {% if registros.has_next %}
+
+                    <a href="?page={{ registros.next_page_number }}"
+                    class="btn btn-paginacao">
+
+                        Próxima →
+
+                    </a>
+
+                    <a href="?page={{ registros.paginator.num_pages }}"
+                    class="btn btn-paginacao">
+
+                        Última »
+
+                    </a>
+
+                {% endif %}
+
+            </div>
 
         </div>
 
@@ -729,14 +959,33 @@ Registros
 
     function validarFormulario(id){
 
-        const localDest = document.getElementById('localDest' + id);
-        const dataFim = document.getElementById('dataFim' + id);
-        const kmFim = document.getElementById('kmFim' + id);
-        const kmInicio = document.getElementById('kmInicio' + id);
-        const btn = document.getElementById('btnSalvar' + id);
+        const localDest = document.getElementById(
+            'localDest' + id
+        );
 
-        const kmInicialValor = parseInt(kmInicio.value) || 0;
-        const kmFinalValor = parseInt(kmFim.value) || 0;
+        const dataFim = document.getElementById(
+            'dataFim' + id
+        );
+
+        const kmFim = document.getElementById(
+            'kmFim' + id
+        );
+
+        const kmInicio = document.getElementById(
+            'kmInicio' + id
+        );
+
+        const btn = document.getElementById(
+            'btnSalvar' + id
+        );
+
+        const kmInicialValor = parseInt(
+            kmInicio.value
+        ) || 0;
+
+        const kmFinalValor = parseInt(
+            kmFim.value
+        ) || 0;
 
         if(
             localDest.value.trim() !== '' &&
@@ -746,7 +995,10 @@ Registros
         ){
 
             btn.disabled = false;
-            kmFim.classList.remove('border-danger');
+
+            kmFim.classList.remove(
+                'border-danger'
+            );
 
         }else{
 
@@ -757,11 +1009,15 @@ Registros
                 kmFinalValor <= kmInicialValor
             ){
 
-                kmFim.classList.add('border-danger');
+                kmFim.classList.add(
+                    'border-danger'
+                );
 
             }else{
 
-                kmFim.classList.remove('border-danger');
+                kmFim.classList.remove(
+                    'border-danger'
+                );
 
             }
 
@@ -769,19 +1025,136 @@ Registros
 
     }
 
-    function voltarFormulario(id){
+    function limparBackdrops(){
 
-        const confirmarModal = bootstrap.Modal.getInstance(
-            document.getElementById('confirmarModal' + id)
+        document.body.classList.remove(
+            'modal-open'
         );
 
-        confirmarModal.hide();
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
 
-        const editarModal = new bootstrap.Modal(
-            document.getElementById('editarModal' + id)
+        document.querySelectorAll(
+            '.modal-backdrop'
+        ).forEach(el => {
+            el.remove();
+        });
+
+    }
+    
+    function abrirModal(id){
+
+        const modalElement = document.getElementById(
+            'editarModal' + id
         );
 
-        editarModal.show();
+        // remove restos de backdrop
+        document.querySelectorAll('.modal-backdrop')
+            .forEach(el => el.remove());
+
+        // libera body
+        document.body.classList.remove('modal-open');
+
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+
+        // cria modal corretamente
+        const modal = new bootstrap.Modal(
+            modalElement
+        );
+
+        modal.show();
+
+    }
+    
+    function fecharModalEdicao(id){
+
+        document.activeElement.blur();
+
+        const modalElement = document.getElementById(
+            'editarModal' + id
+        );
+
+        const modal = bootstrap.Modal.getInstance(
+            modalElement
+        );
+
+        if(modal){
+
+            modal.hide();
+            modal.dispose();
+
+        }
+
+
+        document.querySelectorAll(
+            '.modal-backdrop'
+        ).forEach(el => {
+            el.remove();
+        });
+
+
+        document.body.classList.remove(
+            'modal-open'
+        );
+
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+
+        modalElement.classList.remove(
+            'show'
+        );
+
+        modalElement.style.display = 'none';
+
+        modalElement.removeAttribute(
+            'aria-modal'
+        );
+
+        modalElement.removeAttribute(
+            'role'
+        );
+
+        modalElement.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+    }
+
+    function fecharConfirmacao(id){
+
+        document.activeElement.blur();
+
+        const modalElement = document.getElementById(
+            'confirmarModal' + id
+        );
+
+        const modal = bootstrap.Modal.getInstance(
+            modalElement
+        );
+
+        if(modal){
+            modal.hide();
+        }
+
+        limparBackdrops();
+
+        // reabre modal edição corretamente
+
+        setTimeout(() => {
+
+            const editarElement = document.getElementById(
+                'editarModal' + id
+            );
+
+            const editarModal = new bootstrap.Modal(
+                editarElement
+            );
+
+            editarModal.show();
+
+        }, 200);
 
     }
 
@@ -790,6 +1163,50 @@ Registros
         document.getElementById(
             'formEditar' + id
         ).submit();
+
+    }
+
+    function validarCancelamento(id){
+
+        const motivo = document.getElementById(
+            'motivo' + id
+        );
+
+        const btn = document.getElementById(
+            'btnCancelar' + id
+        );
+
+        if(
+            motivo.value.trim().length >= 15
+        ){
+
+            btn.disabled = false;
+
+            motivo.classList.remove(
+                'border-danger'
+            );
+
+        }else{
+
+            btn.disabled = true;
+
+            if(
+                motivo.value.trim().length > 0
+            ){
+
+                motivo.classList.add(
+                    'border-danger'
+                );
+
+            }else{
+
+                motivo.classList.remove(
+                    'border-danger'
+                );
+
+            }
+
+        }
 
     }
 

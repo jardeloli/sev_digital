@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 from .models import Servidor, Veiculo, RegistroSev, Servico, Perfil, Permissao, PerfilPermissao
 
@@ -273,7 +274,6 @@ def lista_sev(request):
     if not usuario_logado(request):
         return redirect('login')
 
-   
     busca = request.GET.get('busca', '')
     status = request.GET.get('status', '')
 
@@ -285,16 +285,18 @@ def lista_sev(request):
 
     registros = RegistroSev.objects.all()
 
+    
     if busca:
 
         registros = registros.filter(
 
             Q(servidor__nome_servidor__icontains=busca) |
-            Q(veiculo__placa__icontains=busca)|
+            Q(veiculo__placa__icontains=busca) |
             Q(servico__nome_servico__icontains=busca)
 
         )
 
+   
     if status:
 
         registros = registros.filter(
@@ -304,9 +306,7 @@ def lista_sev(request):
     if data_inicio and data_fim:
 
         registros = registros.filter(
-
             data_inicio__date__range=[data_inicio, data_fim]
-
         )
 
     if filtro_local and cidade:
@@ -314,20 +314,24 @@ def lista_sev(request):
         if filtro_local == 'origem':
 
             registros = registros.filter(
-
                 local_ori__icontains=cidade
-
             )
 
         elif filtro_local == 'destino':
 
             registros = registros.filter(
-
                 local_dest__icontains=cidade
-
             )
 
+
     registros = registros.order_by('-data_inicio')
+
+
+    paginator = Paginator(registros, 15)
+
+    page = request.GET.get('page')
+
+    registros = paginator.get_page(page)
 
     context = {
 
@@ -348,33 +352,51 @@ def lista_sev(request):
 
 def editar_registro(request, id):
 
-    if not usuario_logado(request):
-        return redirect('login')
-
-    registro = RegistroSevService.buscar_registro(id)
+    registro = get_object_or_404(
+        RegistroSev,
+        id_sev=id
+    )
 
     if request.method == 'POST':
 
-        try:
+        local_dest = request.POST.get('local_dest')
+        data_fim = request.POST.get('data_fim')
+        km_fim = request.POST.get('km_fim')
 
-            RegistroSevService.editar_registro(
-                registro=registro,
-                local_dest=request.POST.get('local_dest'),
-                data_fim=request.POST.get('data_fim'),
-                km_fim=request.POST.get('km_fim')
-            )
 
-            messages.success(
-                request,
-                'Registro atualizado com sucesso.'
-            )
-
-        except ValidationError as e:
+        if not local_dest or not data_fim or not km_fim:
 
             messages.error(
                 request,
-                e.message
+                'Preencha todos os campos.'
             )
+
+            return redirect('lista_sev')
+
+        if int(km_fim) <= int(registro.km_inicio):
+
+            messages.error(
+                request,
+                'KM final deve ser maior que KM inicial.'
+            )
+
+            return redirect('lista_sev')
+
+        registro.local_dest = local_dest
+        registro.data_fim = data_fim
+        registro.km_fim = km_fim
+
+
+        registro.status = 'FINALIZADO'
+
+        registro.save()
+
+        messages.success(
+            request,
+            'Registro finalizado com sucesso.'
+        )
+
+        return redirect('lista_sev')
 
     return redirect('lista_sev')
 
@@ -397,12 +419,39 @@ def finalizar_sev(request, id):
 
 def cancelar_sev(request, id):
 
-    if not usuario_logado(request):
-        return redirect('login')
+    registro = get_object_or_404(
+        RegistroSev,
+        id_sev=id
+    )
 
-    RegistroSevService.cancelar_registro(id)
+    if request.method == 'POST':
 
-    messages.success(request, 'Registro cancelado com sucesso.')
+        motivo = request.POST.get(
+            'motivo_cancelamento',
+            ''
+        ).strip()
+
+        # mínimo 15 caracteres
+
+        if len(motivo) < 15:
+
+            messages.error(
+                request,
+                'O motivo deve ter pelo menos 15 caracteres.'
+            )
+
+            return redirect('lista_sev')
+
+        registro.status = 'CANCELADO'
+
+        registro.motivo_cancelamento = motivo
+
+        registro.save()
+
+        messages.success(
+            request,
+            'Registro cancelado com sucesso.'
+        )
 
     return redirect('lista_sev')
 
