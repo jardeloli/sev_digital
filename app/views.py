@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Q, Case, When, IntegerField
 from django.core.paginator import Paginator
+from django.utils import timezone
 
 from .models import Servidor, Veiculo, RegistroSev, Servico, Perfil, Permissao, PerfilPermissao
 
@@ -66,7 +67,7 @@ def dashboard(request):
     if not usuario_logado(request):
         return redirect('login')
 
-    registros = RegistroSev.objects.filter(status='ABERTO').order_by('-data_inicio')[:10]
+    registros = RegistroSev.objects.order_by('-data_inicio')[:10]
 
     usuario = Servidor.objects.select_related(
         'perfil'
@@ -122,7 +123,19 @@ def lista_veiculos(request):
     if not usuario_logado(request):
         return redirect('login')
 
-    veiculos = VeiculoService.listar_veiculos().order_by('placa')
+    veiculos = VeiculoService.listar_veiculos().annotate(
+        ordem_status=Case(
+            When(status='ATIVO', then=0),
+            When(status='EM USO', then=1),
+            When(status='MANUTENCAO', then=2),
+            When(status='INATIVO', then=3),
+            default=4,
+            output_field=IntegerField()
+        )
+    ).order_by(
+        'ordem_status',
+        'placa'
+    )
 
     context = base_context(
         request,
@@ -236,7 +249,7 @@ def registrar_sev(request):
         return redirect('login')
 
     servidores = ServidorService.listar_servidores()
-    veiculos = VeiculoService.listar_veiculos()
+    veiculos = Veiculo.objects.filter(status='ATIVO')
     servicos = ServicoService.listar_servicos()
 
     if request.method == 'POST':
@@ -324,7 +337,18 @@ def lista_sev(request):
             )
 
 
-    registros = registros.order_by('-data_inicio')
+    registros = registros.annotate(
+        ordem_status=Case(
+            When(status='ABERTO', then=0),
+            When(status='FINALIZADO', then=1),
+            When(status='CANCELADO', then=2),
+            default=3,
+            output_field=IntegerField()
+        )
+    ).order_by(
+        'ordem_status',
+        '-data_inicio'
+    )
 
 
     paginator = Paginator(registros, 15)
@@ -333,9 +357,21 @@ def lista_sev(request):
 
     registros = paginator.get_page(page)
 
+    servidores = Servidor.objects.all()
+
+    veiculos = Veiculo.objects.filter(
+        status='ATIVO'
+    )
+
+    servicos = Servico.objects.all()
+
     context = {
 
         'registros': registros,
+
+        'servidores': servidores,
+        'veiculos': veiculos,
+        'servicos': servicos,
 
         'busca': busca,
         'status': status,
@@ -363,7 +399,6 @@ def editar_registro(request, id):
         data_fim = request.POST.get('data_fim')
         km_fim = request.POST.get('km_fim')
 
-
         if not local_dest or not data_fim or not km_fim:
 
             messages.error(
@@ -381,13 +416,23 @@ def editar_registro(request, id):
             )
 
             return redirect('lista_sev')
+        
+        agora = timezone.localtime()
+
+        registro.data_fim = agora.replace(
+            year=int(data_fim[:4]),
+            month=int(data_fim[5:7]),
+            day=int(data_fim[8:10])
+        )
 
         registro.local_dest = local_dest
-        registro.data_fim = data_fim
         registro.km_fim = km_fim
 
-
+        registro.veiculo.km_total = int(km_fim)
         registro.status = 'FINALIZADO'
+        
+        registro.veiculo.status = 'ATIVO'
+        registro.veiculo.save()
 
         registro.save()
 
@@ -447,6 +492,8 @@ def cancelar_sev(request, id):
         registro.motivo_cancelamento = motivo
 
         registro.save()
+        registro.veiculo.status = 'ATIVO'
+        registro.veiculo.save()
 
         messages.success(
             request,
