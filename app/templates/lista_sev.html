@@ -37,7 +37,7 @@ Registros
 
     .table tbody td{
         vertical-align:middle;
-        padding:18px 12px;
+        padding:12px 12px;
         font-size:14px;
     }
 
@@ -142,8 +142,7 @@ Registros
 
     .btn-paginacao{
 
-        background:#17315c;
-        color:white;
+        color:#17315c;
         border:none;
         border-radius:12px;
         font-weight:600;
@@ -151,18 +150,17 @@ Registros
     }
 
     .btn-paginacao:hover{
-
-        background:#24457c;
-        color:white;
+        color:#24457c;
         transform:translateY(-1px);
     }
 
     .btn-pagina-atual{
 
-        color:rgb(0, 0, 0);
+        color:rgb(170, 170, 170);
         border-radius:12px;
         font-weight:700;
         cursor:default;
+        padding-bottom: 8px;
     }
 
     .btn-limpar{
@@ -174,6 +172,31 @@ Registros
     .btn-limpar:hover{
         background:#4b5563;
     }
+
+   .campo-invalido{
+        border: 5px solid red !important;
+        background: yellow !important;
+    }
+
+   .alert-sucesso-custom{
+
+        background:#d9edf7;
+        border:1px solid #bce8f1;
+        color:#31708f;
+
+        border-radius:8px;
+
+        padding:16px 20px;
+
+        margin-bottom:20px;
+
+        text-align:center;
+
+        font-weight:600;
+
+    }
+
+
     </style>
 
 <!-- TOPO -->
@@ -190,17 +213,36 @@ Registros
             Lista de todos os registros de deslocamento
         </p>
 
-    </div>
+    </div> 
 
-    <a href="/sev/nova/" class="btn btn-primary px-4">
+    <button
+        class="btn btn-primary px-4" style="background:#17315c"
+        data-bs-toggle="modal"
+        data-bs-target="#novoRegistroModal">
 
-        <i class="bi bi-plus-lg"></i>
+        <i class="bi bi-plus-square-fill me-2"></i>
         Novo Registro
 
-    </a>
+    </button>
+
 
 </div>
+<div class="col-md- px-3">
+    {% if messages %}
 
+        {% for message in messages %}
+
+            <div class="d-flex alert-sucesso-custom">
+
+                {{ message }}
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+</div>
+ 
 <!-- FILTROS -->
 
 <form method="GET" class="row g-3 mb-4 filtros-container">
@@ -255,7 +297,7 @@ Registros
     <!-- DATA INÍCIO -->
 
     <div class="col-md-2">
-
+        
         <input type="date"
                name="data_inicio"
                class="form-control filtro-data"
@@ -312,25 +354,28 @@ Registros
     </div>
 
     <!-- BOTÃO -->
+    <div class="d-flex">
+        <div class="col-md-0">
 
-    <div class="col-md-1">
+            <button class="btn text-white" style="background:#17315c">
+                Pesquisar
+                <i class="bi bi-search"></i>
+            </button>
 
-        <button class="btn btn-primary w-100">
-            <i class="bi bi-search"></i>
-        </button>
+        </div>
+
+        <div class="col-md-0 d-flex px-3">
+
+            <a href="/sev/" class="btn text-white" style="background:#929292">
+
+                Limpar Filtros
+
+            </a>
+
+        </div>
 
     </div>
-
-    <div class="col-md-1">
-
-        <a href="/sev/"
-        class="btn btn-secondary w-100 btn-limpar">
-
-            <i class="bi bi-x-lg"></i>
-
-        </a>
-
-    </div>
+    
 
 </form>
 
@@ -396,7 +441,7 @@ Registros
 
                         <td>{{ r.local_ori }}</td>
 
-                        <td>{{ r.data_inicio|date:"d/m/Y" }}</td>
+                        <td>{{ r.data_inicio }}</td>
 
                         <td class="fw-bold">
                             {{ r.km_inicio|intcomma }}
@@ -408,7 +453,7 @@ Registros
 
                         <td>
                             {% if r.data_fim %}
-                                {{ r.data_fim|date:"d/m/Y" }}
+                                {{ r.data_fim }}
                             {% else %}
                                 -
                             {% endif %}
@@ -426,7 +471,7 @@ Registros
 
                             {% if r.status == 'ABERTO' %}
 
-                                <span class="status-badge status-aberto">
+                                <span class="status-badge status-aberto ">
                                     Aberto
                                 </span>
 
@@ -879,7 +924,7 @@ Registros
 
                         </div>
 
-                    </div>
+                    </div>               
 
                     {% empty %}
 
@@ -899,6 +944,251 @@ Registros
                 </tbody>
 
             </table>
+
+             <!-- MODAL NOVO REGISTRO -->
+                     <div class="modal fade"id="novoRegistroModal" tabindex="-1">
+
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+                            <div class="modal-content border-0 shadow-lg">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+                                        Novo Registro
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <form method="POST"
+                                    id="formNovoRegistro"
+                                    action="{% url 'registrar_sev' %}">
+
+                                    {% csrf_token %}
+
+                                    <div class="modal-body">
+
+                                        <div class="row g-3">
+
+                                            <!-- SERVIDOR -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    Servidor
+                                                </label>
+
+                                                <select
+                                                    name="servidor"
+                                                    class="form-select"
+                                                    required>
+
+                                                    <option value="">
+                                                        Selecione
+                                                    </option>
+
+                                                    {% for s in servidores %}
+
+                                                    <option value="{{ s.siape }}">
+                                                        {{ s.nome_servidor }}
+                                                    </option>
+
+                                                    {% endfor %}
+
+                                                </select>
+
+                                            </div>
+
+                                            <!-- VEÍCULO -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    Veículo
+                                                </label>
+
+                                                <select
+                                                    id="veiculoNovo"
+                                                    name="veiculo"
+                                                    class="form-select"
+                                                    onchange="atualizarKmInicial()"
+                                                    required>
+
+                                                    <option value="">
+                                                        Selecione
+                                                    </option>
+
+                                                    {% for v in veiculos %}
+
+                                                    <option
+                                                        value="{{ v.placa }}"
+                                                        data-km="{{ v.km_total }}"
+
+                                                        {% if veiculos|length == 1 %}
+                                                            selected
+                                                        {% endif %}>
+
+                                                        {{ v.placa }} - {{ v.modelo }}
+
+                                                    </option>
+
+                                                    {% endfor %}
+
+                                                </select>
+
+                                            </div>
+
+                                            <!-- SERVIÇO -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    Serviço
+                                                </label>
+
+                                                <select
+                                                    name="servico"
+                                                    class="form-select"
+                                                    required>
+
+                                                    <option value="">
+                                                        Selecione
+                                                    </option>
+
+                                                    {% for s in servicos %}
+
+                                                    <option value="{{ s.id_servico }}">
+                                                        {{ s.nome_servico }}
+                                                    </option>
+
+                                                    {% endfor %}
+
+                                                </select>
+
+                                            </div>
+
+                                            <!-- DATA INÍCIO -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    Data Início
+                                                </label>
+
+                                                <input
+                                                    type="date"
+                                                    name="data_inicio"
+                                                    id="dataInicioNovo"
+                                                    class="form-control"
+                                                    required>
+
+                                            </div>
+
+                                            <!-- ORIGEM -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    Origem
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    name="origem"
+                                                    class="form-control"
+                                                    required>
+
+                                            </div>
+
+                                            <!-- LOCAL ORIGEM -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    Local Origem
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    name="local_ori"
+                                                    class="form-control"
+                                                    required>
+
+                                            </div>
+
+                                            <!-- DESTINO -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    Destino
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    name="destino"
+                                                    class="form-control"
+                                                    required>
+
+                                            </div>
+
+                                            <!-- KM INICIAL -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+                                                    KM Inicial
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    id="kmInicioVisual"
+                                                    class="form-control campo-fixo"
+                                                    readonly>
+
+                                                <input
+                                                    type="hidden"
+                                                    id="kmInicioNovo"
+                                                    name="km_inicio">
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+
+                                            Cancelar
+
+                                        </button>
+
+                                        <button type="submit"
+                                                id="btnSalvarNovoRegistro"
+                                                class="btn btn-primary">
+
+                                            Salvar Registro
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
             <!-- PAGINAÇÃO -->
 
             <div class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
@@ -921,7 +1211,7 @@ Registros
 
                 {% endif %}
 
-                <span class="btn btn-pagina-atual">
+                <span class="btn-pagina-atual">
 
                     Página {{ registros.number }} de {{ registros.paginator.num_pages }}
 
@@ -1209,7 +1499,169 @@ Registros
         }
 
     }
+     
+    function atualizarKmInicial(){
 
+        const select = document.getElementById(
+            'veiculoNovo'
+        );
+
+        const option = select.options[
+            select.selectedIndex
+        ];
+
+        const km = option.dataset.km || '';
+
+        // valor enviado para o backend
+        document.getElementById(
+            'kmInicioNovo'
+        ).value = km;
+
+        // valor apenas visual
+        document.getElementById(
+            'kmInicioVisual'
+        ).value = km
+            ? Number(km).toLocaleString('pt-BR')
+            : '';
+
+    }
+
+   document.addEventListener(
+    'DOMContentLoaded',
+    function(){
+
+        console.log('DOM carregado');
+
+        // impede datas futuras
+        const hoje = new Date()
+            .toISOString()
+            .split('T')[0];
+
+        const campoData = document.getElementById(
+            'dataInicioNovo'
+        );
+
+        if(campoData){
+            campoData.max = hoje;
+        }
+
+        // carrega KM inicial
+        if(typeof atualizarKmInicial === 'function'){
+            atualizarKmInicial();
+        }
+
+        const formulario = document.getElementById(
+            'formNovoRegistro'
+        );
+
+        formulario.addEventListener(
+            'submit',
+            function(event){
+
+                console.log('VALIDANDO FORM');
+
+                let formularioValido = true;
+
+                const campos = formulario.querySelectorAll(
+                    'input[required], select[required]'
+                );
+
+                campos.forEach(function(campo){
+
+                    if(!campo.value.trim()){
+
+                        campo.classList.add(
+                            'campo-invalido'
+                        );
+
+                        console.log(
+                            'Campo inválido:',
+                            campo.name
+                        );
+                        formularioValido = false;
+
+                    }
+                    else{
+
+                        campo.classList.remove(
+                            'campo-invalido'
+                        );
+
+                    }
+
+                });
+
+                if(!formularioValido){
+
+                    event.preventDefault();
+
+                }
+
+            }
+        );
+
+        document.querySelectorAll(
+            '#formNovoRegistro input, #formNovoRegistro select'
+        ).forEach(function(campo){
+
+                    campo.addEventListener(
+                        'input',
+                        function(){
+
+                            if(this.value.trim()){
+
+                                this.classList.remove(
+                                    'campo-invalido'
+                                );
+
+                            }
+
+                        }
+                    );
+
+                    campo.addEventListener(
+                        'change',
+                        function(){
+
+                            if(this.value.trim()){
+
+                                this.classList.remove(
+                                    'campo-invalido'
+                                );
+
+                            }
+
+                        }
+                    );
+
+                });
+
+            }
+        );
+
+    setTimeout(function(){
+
+        const alertas = document.querySelectorAll(
+            '.alert-sucesso-custom'
+        );
+
+        alertas.forEach(function(alerta){
+
+            alerta.style.transition =
+                'opacity 0.3s ease';
+
+            alerta.style.opacity = '0';
+
+            setTimeout(function(){
+
+                alerta.remove();
+
+            }, 300);
+
+        });
+
+    }, 3000);
+        
 </script>
 
 {% endblock %}
