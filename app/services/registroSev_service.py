@@ -22,7 +22,18 @@ class RegistroSevService:
         data_fim=None,
         km_fim=None
     ):
-        data_inicio = RegistroSevService._parse_datetime(data_inicio, "data de inicio")
+        data_escolhida = datetime.strptime(
+            data_inicio,
+            "%Y-%m-%d"
+        )
+
+        agora = timezone.localtime()
+
+        data_inicio = agora.replace(
+            year=data_escolhida.year,
+            month=data_escolhida.month,
+            day=data_escolhida.day
+        )
         data_fim = RegistroSevService._parse_datetime(data_fim, "data de fim", required=False)
         km_inicio = RegistroSevService._parse_int(km_inicio, "KM inicial")
         km_fim = RegistroSevService._parse_int(km_fim, "KM final", required=False)
@@ -33,9 +44,16 @@ class RegistroSevService:
         if data_fim and data_fim <= data_inicio:
             raise ValidationError("A data de fim deve ser posterior a data de inicio.")
 
+        veiculo = Veiculo.objects.get(pk=placa)
+
+        if veiculo.status != 'ATIVO':
+            raise ValidationError(
+                'Este veículo não está disponível.'
+            )
+
         registro = RegistroSev.objects.create(
             servidor=Servidor.objects.get(pk=siape),
-            veiculo=Veiculo.objects.get(pk=placa),
+            veiculo=veiculo,
             servico=Servico.objects.get(pk=id_servico),
             origem=origem,
             local_ori=local_ori or '',
@@ -46,6 +64,9 @@ class RegistroSevService:
             data_fim=data_fim,
             km_fim=km_fim
         )
+
+        veiculo.status = 'EM USO'
+        veiculo.save()
 
         if km_fim is not None:
             RegistroSevService.atualizar_km_total(registro)
@@ -83,6 +104,8 @@ class RegistroSevService:
     def finalizar_registro(id):
         registro = RegistroSev.objects.get(pk=id)
         registro.status = 'FINALIZADO'
+        registro.veiculo.status = 'ATIVO'
+        registro.veiculo.save()
         registro.save()
 
         return registro
@@ -91,6 +114,8 @@ class RegistroSevService:
     def cancelar_registro(id):
         registro = RegistroSev.objects.get(pk=id)
         registro.status = 'CANCELADO'
+        registro.veiculo.status = 'ATIVO'
+        registro.veiculo.save()
         registro.save()
 
         return registro
