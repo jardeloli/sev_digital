@@ -4,6 +4,9 @@
 Dashboard
 {% endblock %}
 
+{% load humanize %}
+{% load l10n %}
+
 {% block content %}
 
 <style>
@@ -63,6 +66,29 @@ Dashboard
         transform:translateY(-3px);
         box-shadow:0 8px 20px rgba(128, 133, 209, 0.1);
     }
+
+     .status-badge{
+        padding:6px 12px;
+        border-radius:8px;
+        font-size:12px;
+        font-weight:600;
+    }
+
+    .status-aberto{
+        background:#dcfce7;
+        color:#166534;
+    }
+
+    .status-finalizado{
+        background:#e0e7ff;
+        color:#3730a3;
+    }
+
+    .status-cancelado{
+        background:#fee2e2;
+        color:#991b1b;
+    }
+
 
 </style>
 
@@ -253,12 +279,12 @@ Dashboard
                         <thead>
 
                             <tr>
-                                <th>Servidor</th>
-                                <th>Placa</th>
-                                <th>Origem</th>
-                                <th>Destino</th>
-                                <th>Distância</th>
-                                <th>Status</th>
+                                <th style="color: #9ca3af">Servidor</th>
+                                <th style="color: #9ca3af">Placa</th>
+                                <th style="color: #9ca3af">Origem</th>
+                                <th style="color: #9ca3af">Destino</th>
+                                <th style="color: #9ca3af">Data Início</th>
+                                <th style="color: #9ca3af">Status</th>
                                 
                             </tr>
 
@@ -286,12 +312,33 @@ Dashboard
                                     {{ registro.destino }}
                                 </td>
 
-                                <td class="fw-bold">
-                                    {{ registro.km_rodado }} km
+                                <td >
+                                    {{ registro.data_inicio}} 
                                 </td>
 
                                 <td>
-                                    {{ registro.get_status_display }}
+
+                                    {% if registro.status == 'ABERTO' %}
+
+                                        <span class="status-badge status-aberto">
+                                            Aberto
+                                        </span>
+
+                                    {% elif registro.status == 'FINALIZADO' %}
+
+                                        <span class="status-badge status-finalizado">
+                                            Finalizado
+                                        </span>
+
+                                    {% else %}
+
+                                    <span class="status-badge status-cancelado">
+                                        Cancelado
+                                    </span>
+
+                                       
+                                    {% endif %}
+
                                 </td>
 
                             </tr>
