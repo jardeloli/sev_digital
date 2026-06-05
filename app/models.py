@@ -90,11 +90,27 @@ class Veiculo(models.Model):
         return f"{self.marca} {self.modelo} - {self.placa}"
 
 class Servico(models.Model):
+
+    CATEGORIA_CHOICES = [
+        ('ADMINISTRATIVO', 'Administrativo'),
+        ('FISCALIZACAO', 'Fiscalização'),
+        ('MANUTENCAO', 'Manutenção'),
+        ('LOGISTICA', 'Logística'),
+        ('LEVANTAMENTO', 'Levantamento'),
+        ('OUTROS', 'Outros'),
+    ]
+
+    STATUS_CHOICES = [
+        ('ATIVO', 'Ativo'),
+        ('INATIVO', 'Inativo'),
+    ]
+
     id_servico = models.SmallAutoField(primary_key=True)
     nome_servico = models.CharField(max_length=25)
     descricao = models.CharField(max_length=45, blank=True)
-
-    #Retorna o nome do serviço
+    categoria = models.CharField(max_length=20,choices=CATEGORIA_CHOICES,default='OUTROS')
+    status = models.CharField(max_length=10,choices=STATUS_CHOICES,default='ATIVO')
+    
     def __str__(self):
         return self.nome_servico
 
