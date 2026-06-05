@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Editar Serviço{% endblock %}
+{% block content %}
+
+<style>
+
+    .link-voltar{
+        display: inline-block;
+        color: #17315c;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+</style>
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-7">
+        <div class="mb-4">
+            <p class="text-muted mb-1">Configuração operacional</p>
+            <h1 class="fw-bold mb-0" style="color:#17315c;">Editar Serviço</h1>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-4 p-md-5">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" for="nome_servico">Nome do Serviço</label>
+                            <input class="form-control"
+                                    type="text"
+                                    name="nome_servico"
+                                    id="nome_servico"
+                                    value="{{ servico.nome_servico }}"
+                                    required>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" for="descricao">Descrição</label>
+                            <input class="form-control"
+                                type="text"
+                                name="descricao"
+                                id="descricao"
+                                value="{{ servico.descricao }}">
+                        </div>
+                    </div>
+                    <div class="row py-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Categoria
+                            </label>
+
+                            <select
+                                name="categoria"
+                                class="form-select">
+                                <option value="ADMINISTRATIVO"
+                                    {% if servico.categoria == 'ADMINISTRATIVO' %}selected{% endif %}>
+                                    Administrativo
+                                </option>
+
+                                <option value="FISCALIZACAO"
+                                    {% if servico.categoria == 'FISCALIZACAO' %}selected{% endif %}>
+                                    Fiscalização
+                                </option>
+
+                                <option value="MANUTENCAO"
+                                    {% if servico.categoria == 'MANUTENCAO' %}selected{% endif %}>
+                                    Manutenção
+                                </option>
+
+                                <option value="LOGISTICA"
+                                    {% if servico.categoria == 'LOGISTICA' %}selected{% endif %}>
+                                    Logística
+                                </option>
+
+                                <option value="LEVANTAMENTO"
+                                    {% if servico.categoria == 'LEVANTAMENTO' %}selected{% endif %}>
+                                    Levantamento
+                                </option>
+
+                                <option value="OUTROS"
+                                    {% if servico.categoria == 'OUTROS' %}selected{% endif %}>
+                                    Outros
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Status
+                            </label>
+
+                            <select
+                                name="status"
+                                class="form-select">
+
+                                <option value="ATIVO"
+                                    {% if servico.status == 'ATIVO' %}selected{% endif %}>
+                                    Ativo
+                                </option>
+
+                                <option value="INATIVO"
+                                    {% if servico.status == 'INATIVO' %}selected{% endif %}>
+                                    Inativo
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn text-white w-100 mt-4" style="background:#17315c;border-radius:10px;padding:12px;font-weight:600;" type="submit">
+                        <i class="bi bi-tools me-2"></i>
+                        Salvar Serviço
+                    </button>
+                </form>
+
+                {% for message in messages %}
+                    <div class="alert alert-danger mt-3 mb-0">{{ message }}</div>
+                {% endfor %}
+
+                <div class="text-center mt-4">
+                    <a href="{% url 'lista_servicos' %}" style="color:#17315c;font-weight:600;text-decoration:none;">
+                        Voltar para Serviços
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
