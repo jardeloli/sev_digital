@@ -1,24 +1,172 @@
 {% extends 'base.html' %}
 {% block title %}Editar Usuário{% endblock %}
 {% block content %}
+
+<style>
+
+    .link-voltar{
+        display: inline-block;
+        color: #17315c;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+</style>
 <div class="row justify-content-center">
     <div class="col-lg-7 col-xl-6">
-        <div class="mb-4"><h1 class="fw-bold mb-1">Editar Usuário</h1><p class="text-muted mb-0">Atualize seus dados de acesso</p></div>
+        <div class="mb-4">
+            <h1 class="fw-bold mb-1">Editar Usuário</h1>
+            <p class="text-muted mb-0">Atualize seus dados de acesso</p></div>
         <div class="card border-0 shadow-sm"><div class="card-body p-4">
             {% for message in messages %}<div class="alert alert-info">{{ message }}</div>{% endfor %}
             <form method="POST">
                 {% csrf_token %}
                 <div class="row g-3">
-                    <div class="col-md-8"><label class="form-label fw-semibold" for="nome">Nome</label><input class="form-control" type="text" name="nome" id="nome" value="{{ usuario.nome_servidor }}" required></div>
-                    <div class="col-md-4"><label class="form-label fw-semibold">SIAPE</label><input class="form-control" type="text" value="{{ usuario.siape }}" disabled></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold" for="dt_nasc">Data de nascimento</label><input class="form-control" type="date" name="dt_nasc" id="dt_nasc" value="{{ usuario.data_nascimento|date:'Y-m-d' }}" required></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold" for="cpf">CPF</label><input class="form-control" type="text" name="cpf" id="cpf" value="{{ usuario.cpf }}" required></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold" for="email">Email</label><input class="form-control" type="email" name="email" id="email" value="{{ usuario.email }}" required></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold" for="senha">Nova senha</label><input class="form-control" type="password" name="senha" id="senha" placeholder="Deixe em branco para manter"></div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold" for="nome">Nome</label>
+                        <input class="form-control" type="text" name="nome" id="nome" value="{{ usuario.nome_servidor }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">SIAPE</label>
+                        <input class="form-control" type="text" value="{{ usuario.siape }}" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Perfil</label>
+                        <select name="perfil" class="form-select">
+
+                            {% for perfil in perfis %}
+
+                                <option
+                                    value="{{ perfil.id_perfil }}"
+                                    {% if usuario.perfil.id_perfil == perfil.id_perfil %}
+                                        selected
+                                    {% endif %}>
+
+                                    {{ perfil.nome_perfil }}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="dt_nasc">Data de nascimento</label>
+                        <input class="form-control" type="date" name="dt_nasc" id="dt_nasc" value="{{ usuario.data_nascimento|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="cpf">CPF</label>
+                        <input type="text"
+                                id="cpf"
+                                name="cpf"
+                                class="form-control"
+                                value="{{ usuario.cpf }}" required>
+                    </div>
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        <select
+                            name="status"
+                            class="form-select">
+
+                            <option value="ATIVO"
+                                {% if usuario.status == 'ATIVO' %}selected{% endif %}>
+                                Ativo
+                            </option>
+
+                            <option value="AFASTADO"
+                                {% if usuario.status == 'AFASTADO' %}selected{% endif %}>
+                                Afastado
+                            </option>
+
+                            <option value="DESLIGADO"
+                                {% if usuario.status == 'DESLIGADO' %}selected{% endif %}>
+                                Desligado
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="email">Email</label>
+                        <input class="form-control" type="email" name="email" id="email" value="{{ usuario.email }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="senha">Nova senha</label>
+                        <input class="form-control" type="password" name="senha" id="senha" placeholder="Deixe em branco para manter">
+                    </div>
                 </div>
-                <button class="btn text-white w-100 mt-4" style="background:#17315c;" type="submit"><i class="bi bi-check-circle-fill me-2"></i>Salvar alterações</button>
+                <button class="btn text-white w-100 mt-4" style="background:#17315c;" type="submit" id="btnSalvar"><i class="bi bi-check-circle-fill me-2"></i>Salvar alterações</button>
+                <div class="text-center mt-4">
+                            <a style="color:#17315c;font-weight:600;text-decoration:none;" href="{% url 'lista_servidores' %}">Voltar para servidores</a>
+                        </div>
+                    </div>
             </form>
         </div></div>
     </div>
 </div>
+<script>
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function(){
+
+            const cpfInput = document.getElementById('cpf');
+            const btnSalvar = document.getElementById('btnSalvar');
+
+            function validarCPF(){
+
+                let valor = cpfInput.value.replace(/\D/g, '');
+
+                // limita a 11 dígitos
+                valor = valor.substring(0, 11);
+
+                // máscara
+                valor = valor.replace(
+                    /(\d{3})(\d)/,
+                    '$1.$2'
+                );
+
+                valor = valor.replace(
+                    /(\d{3})(\d)/,
+                    '$1.$2'
+                );
+
+                valor = valor.replace(
+                    /(\d{3})(\d{1,2})$/,
+                    '$1-$2'
+                );
+
+                cpfInput.value = valor;
+
+                const numeros = valor.replace(/\D/g, '');
+
+                if(numeros.length !== 11){
+
+                    cpfInput.classList.add('is-invalid');
+                    btnSalvar.disabled = true;
+
+                }else{
+
+                    cpfInput.classList.remove('is-invalid');
+                    btnSalvar.disabled = false;
+
+                }
+
+            }
+
+            cpfInput.addEventListener(
+                'input',
+                validarCPF
+            );
+
+            validarCPF();
+
+        }
+    );
+
+</script>
 {% endblock %}
