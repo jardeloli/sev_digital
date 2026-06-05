@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestão Veiculo{% endblock %}
+
+{% load humanize %}
+{% load l10n %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-7">
+        <div class="mb-4">
+            <p class="text-muted mb-1">Gestão da frota</p>
+            <h1 class="fw-bold mb-0" style="color:#17315c;">Editar Veículo</h1>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius:14px;">
+            <div class="card-body p-4 p-md-5">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="placa">Placa</label>
+                            <input class="form-control bg-light"
+                                type="text"
+                                value="{{ veiculo.placa }}"
+                                readonly>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="marca">Marca</label>
+                           <input class="form-control"
+                                type="text"
+                                name="marca"
+                                id="marca"
+                                value="{{ veiculo.marca }}"
+                                required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="modelo">Modelo</label>
+                           <input class="form-control"
+                                type="text"
+                                name="modelo"
+                                id="modelo"
+                                value="{{ veiculo.modelo }}"
+                                required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="ano">Ano</label>
+                            <input class="form-control"
+                                type="number"
+                                name="ano"
+                                id="ano"
+                                value="{{ veiculo.ano }}"
+                                required>
+                        </div>
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                KM Total
+                            </label>
+
+                            <input class="form-control"
+                                    type="text"
+                                    name="km_total"
+                                    id="km_total"
+                                    value="{{ veiculo.km_total }}"
+                                    required>
+
+                        </div>
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Status
+                            </label>
+
+                            <select
+                                name="status"
+                                class="form-select">
+
+                                <option value="ATIVO"
+                                    {% if veiculo.status == 'ATIVO' %}selected{% endif %}>
+                                    Ativo
+                                </option>
+
+                                <option value="MANUTENCAO"
+                                    {% if veiculo.status == 'MANUTENCAO' %}selected{% endif %}>
+                                    Manutenção
+                                </option>
+
+                                <option value="EM USO"
+                                    {% if veiculo.status == 'EM USO' %}selected{% endif %}>
+                                    Em uso
+                                </option>
+
+                                <option value="INATIVO"
+                                    {% if veiculo.status == 'INATIVO' %}selected{% endif %}>
+                                    Inativo
+                                </option>
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <button class="btn text-white w-100 mt-4" style="background:#17315c;border-radius:10px;padding:12px;font-weight:600;" type="submit">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Salvar Alterações
+                    </button>
+                </form>
+
+                {% for message in messages %}
+                    <div class="alert alert-danger mt-3 mb-0">{{ message }}</div>
+                {% endfor %}
+
+                <div class="text-center mt-4">
+                    <a href="{% url 'lista_veiculos' %}" style="color:#17315c;font-weight:600;text-decoration:none;">
+                        Voltar para Veículos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const kmInput = document.getElementById('km_total');
+
+        if (!kmInput) return;
+
+        // Formata valor inicial ao carregar a página
+        if (kmInput.value) {
+
+            let valor = kmInput.value.replace(/\D/g, '');
+
+            if (valor !== '') {
+                kmInput.value = Number(valor).toLocaleString('pt-BR');
+            }
+        }
+
+        // Formata enquanto digita
+        kmInput.addEventListener('input', function () {
+
+            let valor = this.value.replace(/\D/g, '');
+
+            if (valor === '') {
+                this.value = '';
+                return;
+            }
+
+            this.value = Number(valor).toLocaleString('pt-BR');
+
+        });
+
+        // Remove pontos antes de enviar
+        const form = kmInput.closest('form');
+
+        if (form) {
+
+            form.addEventListener('submit', function () {
+
+                kmInput.value = kmInput.value.replace(/\./g, '');
+
+            });
+
+        }
+
+    });
+</script>
+{% endblock %}
