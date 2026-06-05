@@ -38,5 +38,11 @@ urlpatterns = [
     path('logout/',views.logout_view,name='sair'),
     path('sev/<int:id>/finalizar/', views.finalizar_sev, name='finalizar_sev'),
     path('sev/<int:id>/cancelar/', views.cancelar_sev, name='cancelar_sev'),
-    path('sev/<int:id>/editar/',views.editar_registro,name='editar_registro')
+    path('sev/<int:id>/editar/',views.editar_registro,name='editar_registro'),
+    path('usuarios/<str:siape>/editar/',views.editar_servidor,name='editar_servidor'),
+    path('servicos/<int:id>/deletar/',views.deletar_servico,name='deletar_servico'),
+    path('servicos/<int:id>/editar/',views.editar_servico,name='editar_servico'),
+    path('veiculos/<str:placa>/editar/',views.editar_veiculo,name='editar_veiculo'),
+    path('veiculos/<str:placa>/deletar/',views.deletar_veiculo,name='deletar_veiculo')
+
 ]
