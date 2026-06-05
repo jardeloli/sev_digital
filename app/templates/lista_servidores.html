@@ -1,32 +1,241 @@
 {% extends 'base.html' %}
 {% block title %}Servidores{% endblock %}
 {% block content %}
+<style>
+.status-badge{
+    padding:6px 12px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+    display:inline-block;
+}
+
+.status-disponivel{
+    background:#d4edda;
+    color:#155724;
+}
+
+.status-emuso{
+    background:#ffc107;
+    color:#000;
+}
+
+.status-inativo{
+    background:#f8d7da;
+    color:#721c24;
+}
+.btn-paginacao{
+
+    color:#17315c;
+    border:none;
+    border-radius:12px;
+    font-weight:600;
+    padding-bottom:9px;
+    text-decoration:none;
+
+}
+
+.btn-paginacao:hover{
+
+    text-decoration:underline;
+
+}
+
+.btn-pagina-atual{
+
+    color:rgb(170,170,170);
+    border-radius:12px;
+    font-weight:700;
+    cursor:default;
+    position:relative;
+    padding-bottom:5px;
+
+}
+</style>
+
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="fw-bold mb-1">Servidores</h1>
-        <p class="text-muted mb-0">Usuários cadastrados na plataforma</p>
+        <p class="text-muted mb-0">Servidores cadastrados na plataforma</p>
     </div>
-    {% if usuario.perfil.nome_perfil == 'Admin' %}
+    {% if usuario.perfil.nome_perfil == 'Administrador' %}
         <a href="{% url 'cadastrar_servidor' %}" class="btn text-white" style="background:#17315c;">
             <i class="bi bi-person-plus-fill me-2"></i>Novo Servidor
         </a>
     {% endif %}
 </div>
-{% for message in messages %}<div class="alert alert-info">{{ message }}</div>{% endfor %}
+{% for message in messages %}<div id="mensagem-sucesso" class="alert alert-info">{{ message }}</div>{% endfor %}
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <form method="GET">
+
+            <div class="row g-3 align-items-center">
+
+                <!-- BUSCA -->
+
+                <div class="col-md-7">
+
+                    <input
+                        type="text"
+                        name="busca"
+                        class="form-control"
+                        placeholder="Buscar por SIAPE, nome ou CPF"
+                        value="{{ busca }}">
+
+                </div>
+
+                <!-- STATUS -->
+
+                <div class="col-md-5">
+
+                    <select
+                        name="status"
+                        class="form-select">
+
+                        <option value="">
+                            Todos os status
+                        </option>
+
+                        <option value="ATIVO"
+                            {% if status == 'ATIVO' %}selected{% endif %}>
+                            Ativo
+                        </option>
+
+                        <option value="AFASTADO"
+                            {% if status == 'AFASTADO' %}selected{% endif %}>
+                            Afastado
+                        </option>
+
+                        <option value="DESLIGADO"
+                            {% if status == 'DESLIGADO' %}selected{% endif %}>
+                            Desligado
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+
+                <button
+                    type="submit"
+                    class="btn text-white px-4"
+                    style="background:#17315c;">
+
+                    Pesquisar
+
+                    <i class="bi bi-search ms-1"></i>
+
+                </button>
+
+                <a href="{% url 'lista_servidores' %}"
+                   class="btn btn-secondary px-4">
+
+                    Limpar Filtros
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
 <div class="card border-0 shadow-sm">
     <div class="card-body">
+        <div class="d-flex justify-content-between p-2">
+
+            <h6 class="text-muted">
+                REGISTROS DE SERVIDORES
+            </h6>
+
+            <span class="badge bg-dark">
+                {{ servidores.paginator.count }} servidores
+            </span>
+
+        </div>
         <div class="table-responsive">
+          
             <table class="table align-middle mb-0">
-                <thead><tr><th>SIAPE</th><th>Nome</th><th>Email</th><th>CPF</th><th>Perfil</th><th>Status</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th style="color: #9ca3af">SIAPE</th>
+                        <th style="color: #9ca3af">Nome</th>
+                        <th style="color: #9ca3af">Email</th>
+                        <th style="color: #9ca3af">CPF</th>
+                        <th style="color: #9ca3af">Perfil</th>
+                        <th style="color: #9ca3af">Status</th>
+                        <th class="text-center" style="color: #9ca3af">Ação</th>
+                    </tr>
+                </thead>
                 <tbody>
                     {% for servidor in servidores %}
                         <tr>
                             <td class="fw-semibold">{{ servidor.siape }}</td>
                             <td>{{ servidor.nome_servidor }}</td>
                             <td>{{ servidor.email }}</td>
-                            <td>{{ servidor.cpf }}</td>
+                            <td>
+                                {% if servidor.cpf|length == 11 %}
+
+                                    {{ servidor.cpf|slice:":3" }}.{{ servidor.cpf|slice:"3:6" }}.{{ servidor.cpf|slice:"6:9" }}-{{ servidor.cpf|slice:"9:11" }}
+
+                                {% else %}
+
+                                    {{ servidor.cpf }}
+
+                                {% endif %}
+
+                            </td>
                             <td>{{ servidor.perfil.nome_perfil }}</td>
-                            <td>{{ servidor.get_status_display|default:servidor.status }}</td>
+                            <td>
+                                {% if servidor.status == 'ATIVO' %}
+
+                                    <span class="status-badge status-disponivel">
+                                        Ativo
+                                    </span>
+
+                                {% elif servidor.status == 'AFASTADO' %}
+
+                                    <span class="status-badge status-emuso">
+                                        Afastado
+                                    </span>
+
+                                {% elif servidor.status == 'DESLIGADO' %}
+
+                                    <span class="status-badge status-inativo">
+                                        Desligado
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-inativo">
+                                        {{ servidor.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+
+                                    <!-- EDITAR -->
+
+                                    <a href="{% url 'editar_servidor' servidor.siape %}"
+                                        class="btn btn-sm btn-outline-warning"
+                                        title="Editar servidor">
+
+                                        <i class="bi bi-pencil-fill"></i>
+
+                                    </a>
+
+                                </div>
+
+                            </td>   
                         </tr>
                     {% empty %}
                         <tr><td colspan="6" class="text-center text-muted py-4">Nenhum servidor encontrado.</td></tr>
@@ -35,5 +244,70 @@
             </table>
         </div>
     </div>
+    <div class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
+
+        {% if servidores.has_previous %}
+
+            <a href="?page=1&busca={{ busca }}&categoria={{ categoria }}&status={{ status }}"
+                class="btn btn-paginacao">
+                    Primeira
+            </a>
+            <a href="?page={{ servicos.previous_page_number }}&busca={{ busca }}&categoria={{ categoria }}&status={{ status }}"
+                class="btn btn-paginacao">
+                    ← Anterior
+            </a>
+
+        {% endif %}
+
+        <span class="btn-pagina-atual">
+
+            Página {{ servidores.number }}
+            de
+            {{ servidores.paginator.num_pages }}
+
+        </span>
+
+        {% if servidores.has_next %}
+
+            <a href="?page={{ servicos.next_page_number }}&busca={{ busca }}&categoria={{ categoria }}&status={{ status }}"
+                class="btn btn-paginacao">
+                    Próxima →
+            </a>
+
+           <a href="?page={{ servicos.paginator.num_pages }}&busca={{ busca }}&categoria={{ categoria }}&status={{ status }}"
+                 class="btn btn-paginacao">
+                    Última »
+            </a>
+
+        {% endif %}
+
+    </div>
 </div>
+<script>
+
+    setTimeout(function(){
+
+        const mensagem = document.getElementById(
+            'mensagem-sucesso'
+        );
+
+        if(mensagem){
+
+            mensagem.style.transition =
+                'opacity 0.5s ease';
+
+            mensagem.style.opacity = '0';
+
+            setTimeout(function(){
+
+                mensagem.remove();
+
+            }, 500);
+
+        }
+
+    }, 3000);
+
+</script>
+
 {% endblock %}
