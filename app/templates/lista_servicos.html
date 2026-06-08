@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Servicos{% endblock %}
+{% block title %}Serviços{% endblock %}
+
+{% load humanize %}
+{% load l10n %}
 
 {% block content %}
 
@@ -57,11 +60,12 @@
         <h1 class="fw-bold mb-1">Serviços</h1>
         <p class="text-muted mb-0">Tipos de servicos externos cadastrados</p>
     </div>
-
+    {% if usuario.perfil.nome_perfil == 'Administrador' %}
     <a href="{% url 'cadastrar_servico' %}" class="btn text-white" style="background:#17315c;">
         <i class="bi bi-plus-square-fill me-2"></i>
         Novo Serviço
     </a>
+    {% endif %}
 </div>
 
 {% for message in messages %}
@@ -199,7 +203,9 @@
                         <th style="color: #9ca3af">Categoria</th>
                         <th style="color: #9ca3af">Qtd. Registros</th>
                         <th style="color: #9ca3af">Status</th>
+                        {% if usuario.perfil.nome_perfil == 'Administrador' %}
                         <th class="text-center" style="color: #9ca3af">Ações</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -240,6 +246,7 @@
                                 {% endif %}
 
                             </td>
+                            {% if usuario.perfil.nome_perfil == 'Administrador' %}
                             <td>
 
                                 <div class="d-flex justify-content-center gap-2">
@@ -286,6 +293,7 @@
                                 </div>
 
                             </td>
+                            {% endif %}
 
                         </tr>
                              <!-- MODAL EXCLUIR SERVIÇO -->
