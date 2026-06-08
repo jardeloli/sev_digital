@@ -63,8 +63,8 @@ class ServidorService:
     @staticmethod
     def listar_servidores():
         return Servidor.objects.all()
-    @staticmethod
     
+    @staticmethod
     def buscar_servidor(siape):
         if not Servidor.objects.filter(siape=siape).exists():
             raise ValidationError("Servidor não encontrado.")
