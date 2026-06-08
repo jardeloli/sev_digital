@@ -206,6 +206,9 @@ def lista_servidores(request):
     if not usuario_logado(request):
         return redirect('login')
 
+    if not usuario_admin(request):
+        return redirect('dashboard')
+    
     busca = request.GET.get('busca', '')
     status = request.GET.get('status', '')
 
@@ -352,6 +355,7 @@ def lista_sev(request):
     if not usuario_logado(request):
         return redirect('login')
 
+
     busca = request.GET.get('busca', '')
     status = request.GET.get('status', '')
 
@@ -430,26 +434,32 @@ def lista_sev(request):
 
     servicos = Servico.objects.all()
 
-    context = {
+    context = base_context(
 
-        'registros': registros,
+        request,
 
-        'servidores': servidores,
-        'veiculos': veiculos,
-        'servicos': servicos,
+        registros=registros,
 
-        'busca': busca,
-        'status': status,
+        servidores=servidores,
+        veiculos=veiculos,
+        servicos=servicos,
 
-        'data_inicio': data_inicio,
-        'data_fim': data_fim,
+        busca=busca,
+        status=status,
 
-        'filtro_local': filtro_local,
-        'cidade': cidade,
+        data_inicio=data_inicio,
+        data_fim=data_fim,
 
-    }
+        filtro_local=filtro_local,
+        cidade=cidade,
 
-    return render(request, 'lista_sev.html', context)
+    )
+
+    return render(
+        request,
+        'lista_sev.html',
+        context
+    )
 
 def lista_perfis(request):
     if not usuario_logado(request):
@@ -493,6 +503,9 @@ def lista_permissoes(request):
 def cadastrar_servico(request):
     if not usuario_logado(request):
         return redirect('login')
+    
+    if not usuario_admin(request):
+        return redirect('dashboard')
 
     if request.method == 'POST':
         try:
@@ -514,7 +527,7 @@ def cadastrar_servidor(request):
 
     if not primeiro_cadastro and not usuario_logado(request):
         return redirect('login')
-
+    
     if not primeiro_cadastro and not usuario_admin(request):
         messages.error(request, 'Apenas administradores podem cadastrar servidores.')
         return redirect('dashboard')
@@ -553,6 +566,7 @@ def cadastrar_servidor(request):
             messages.error(request, e.message)
 
     return render(request, 'cadastrar_servidor.html', {
+        'usuario': usuario_atual(request),
         'perfis': perfis,
         'primeiro_cadastro': primeiro_cadastro
     })
@@ -560,6 +574,9 @@ def cadastrar_servidor(request):
 def cadastrar_veiculo(request):
     if not usuario_logado(request):
         return redirect('login')
+    
+    if not usuario_admin(request):
+        return redirect('dashboard')
 
     if request.method == 'POST':
         try:
@@ -622,8 +639,11 @@ def cadastrar_perfil(request):
     )
 
 def registrar_sev(request):
+
     if not usuario_logado(request):
         return redirect('login')
+
+    usuario = usuario_atual(request)
 
     servidores = ServidorService.listar_servidores()
     veiculos = Veiculo.objects.filter(status='ATIVO')
@@ -631,8 +651,17 @@ def registrar_sev(request):
 
     if request.method == 'POST':
         try:
+
+            if usuario_admin(request):
+
+                siape = request.POST.get('servidor')
+
+            else:
+
+                siape = usuario.siape
+
             RegistroSevService.criar_registro_sev(
-                siape=request.POST.get('servidor'),
+                siape=siape,
                 placa=request.POST.get('veiculo'),
                 id_servico=request.POST.get('servico'),
                 origem=request.POST.get('origem'),
@@ -645,30 +674,82 @@ def registrar_sev(request):
                 km_fim=request.POST.get('km_fim'),
             )
 
-            messages.success(request, 'Registro criado com sucesso')
+            messages.success(
+                request,
+                'Registro criado com sucesso'
+            )
+
             return redirect('lista_sev')
 
         except ValidationError as e:
-            messages.error(request, e.message)
-        except Exception:
-            messages.error(request, 'Erro ao registrar serviço')
 
-    return render(request, 'registrar_sev.html', {
-        'servidores': servidores,
-        'veiculos': veiculos,
-        'servicos': servicos
-    })
+            messages.error(
+                request,
+                e.message
+            )
+
+        except Exception:
+
+            messages.error(
+                request,
+                'Erro ao registrar serviço'
+            )
+
+    return render(
+        request,
+        'registrar_sev.html',
+        {
+            'usuario': usuario,
+            'servidores': servidores,
+            'veiculos': veiculos,
+            'servicos': servicos
+        }
+    )
 
 
 
 
 def editar_registro(request, id):
-
+    
     registro = get_object_or_404(
         RegistroSev,
         id_sev=id
     )
+    usuario = usuario_atual(request)
 
+    if (
+        not usuario_admin(request)
+        and registro.servidor.siape != usuario.siape
+    ):
+
+        messages.error(
+            request,
+            'Você só pode editar registros criados por você.'
+        )
+
+        return redirect('lista_sev')
+
+    if registro.status == 'CANCELADO':
+
+        messages.error(
+            request,
+            'Registros cancelados não podem ser alterados.'
+        )
+
+        return redirect('lista_sev')
+
+    if (
+        registro.status == 'FINALIZADO'
+        and not usuario_admin(request)
+    ):
+
+        messages.error(
+            request,
+            'Apenas administradores podem cancelar registros finalizados.'
+        )
+
+        return redirect('lista_sev')
+    
     if request.method == 'POST':
 
         local_dest = request.POST.get('local_dest')
@@ -779,6 +860,9 @@ def editar_servidor(request, siape):
     if not usuario_logado(request):
         return redirect('login')
 
+    if not usuario_admin(request):
+        return redirect('dashboard')
+    
     usuario = get_object_or_404(
         Servidor,
         pk=siape
@@ -836,6 +920,9 @@ def editar_servico(request, id):
 
     if not usuario_logado(request):
         return redirect('login')
+    
+    if not usuario_admin(request):
+        return redirect('dashboard')
 
     servico = get_object_or_404(
         Servico,
@@ -931,6 +1018,9 @@ def editar_veiculo(request, placa):
     if not usuario_logado(request):
         return redirect('login')
 
+    if not usuario_admin(request):
+        return redirect('dashboard')
+    
     veiculo = get_object_or_404(
         Veiculo,
         pk=placa
@@ -980,6 +1070,8 @@ def deletar_veiculo(request, placa):
     if not usuario_logado(request):
         return redirect('login')
 
+    if not usuario_admin(request):
+        return redirect('dashboard')
     try:
 
         VeiculoService.deletar_veiculo(
@@ -1006,6 +1098,9 @@ def deletar_servico(request, id):
 
     if not usuario_logado(request):
         return redirect('login')
+    
+    if not usuario_admin(request):
+        return redirect('dashboard')
 
     if request.method == 'POST':
 
@@ -1034,14 +1129,47 @@ def cancelar_sev(request, id):
         id_sev=id
     )
 
+    usuario = usuario_atual(request)
+
+    if (
+        not usuario_admin(request)
+        and registro.servidor.siape != usuario.siape
+    ):
+
+        messages.error(
+            request,
+            'Você só pode cancelar registros criados por você.'
+        )
+
+        return redirect('lista_sev')
+    
+    if registro.status == 'CANCELADO':
+
+        messages.error(
+            request,
+            'Registros cancelados não podem ser alterados.'
+        )
+
+        return redirect('lista_sev')
+
+    if (
+        registro.status == 'FINALIZADO'
+        and not usuario_admin(request)
+    ):
+
+        messages.error(
+            request,
+            'Apenas administradores podem cancelar registros finalizados.'
+        )
+
+        return redirect('lista_sev')
+
     if request.method == 'POST':
 
         motivo = request.POST.get(
             'motivo_cancelamento',
             ''
         ).strip()
-
-        # mínimo 15 caracteres
 
         if len(motivo) < 15:
 
@@ -1053,10 +1181,10 @@ def cancelar_sev(request, id):
             return redirect('lista_sev')
 
         registro.status = 'CANCELADO'
-
         registro.motivo_cancelamento = motivo
 
         registro.save()
+
         registro.veiculo.status = 'ATIVO'
         registro.veiculo.save()
 
@@ -1066,7 +1194,6 @@ def cancelar_sev(request, id):
         )
 
     return redirect('lista_sev')
-
 
 
 def finalizar_sev(request, id):
