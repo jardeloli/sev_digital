@@ -187,6 +187,7 @@ Dashboard
 
         </div>
 
+        {% if usuario.perfil.nome_perfil == 'Administrador' %}
         <!-- AÇÕES -->
         <div class="row g-4 mb-4">
 
@@ -257,6 +258,7 @@ Dashboard
             </div>
 
         </div>
+        {% endif %}
 
         <!-- TABELA -->
 
