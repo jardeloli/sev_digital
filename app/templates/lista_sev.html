@@ -215,7 +215,6 @@ Registros
         </p>
 
     </div> 
-
     <button
         class="btn btn-primary px-4" style="background:#17315c"
         data-bs-toggle="modal"
@@ -225,7 +224,6 @@ Registros
         Novo Registro
 
     </button>
-
 
 </div>
 <div class="col-md- px-3">
@@ -490,59 +488,109 @@ Registros
                             {% endif %}
 
                         </td>
-
-                       <!-- AÇÕES -->
-                       <td>
+                        <!-- AÇÕES -->
+                        <td>
 
                             <div class="d-flex justify-content-center gap-2">
 
-                                {% if r.status == 'ABERTO' %}
+                                {% if usuario.perfil.nome_perfil == 'Administrador' %}
 
-                                    <!-- EDITAR LIBERADO -->
-                                    <button
-                                        class="btn btn-sm btn-outline-warning"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editarModal{{ r.id_sev }}">
+                                    {% if r.status != 'CANCELADO' %}
 
-                                        <i class="bi bi-pencil-fill"></i>
+                                        <!-- EDITAR -->
+                                        <button
+                                            class="btn btn-sm btn-outline-warning"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editarModal{{ r.id_sev }}">
 
-                                    </button>
+                                            <i class="bi bi-pencil-fill"></i>
 
-                                    <!-- CANCELAR LIBERADO -->
-                                   <button
-                                        class="btn btn-sm btn-outline-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#cancelarModal{{ r.id_sev }}">
+                                        </button>
 
-                                        <i class="bi bi-x-circle-fill"></i>
+                                        <!-- CANCELAR -->
+                                        <button
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#cancelarModal{{ r.id_sev }}">
 
-                                   </button>
+                                            <i class="bi bi-x-circle-fill"></i>
 
-                                {% else %}
+                                        </button>
 
-                                    <!-- EDITAR BLOQUEADO -->
-                                    <button
-                                        class="btn btn-sm btn-outline-secondary opacity-50"
-                                        disabled
-                                        title="Registro já finalizado/cancelado">
+                                    {% else %}
 
-                                        <i class="bi bi-pencil-fill"></i>
+                                        <!-- EDITAR BLOQUEADO -->
+                                        <button
+                                            class="btn btn-sm btn-outline-secondary opacity-50"
+                                            disabled>
 
-                                    </button>
+                                            <i class="bi bi-pencil-fill"></i>
 
-                                    <!-- CANCELAR BLOQUEADO -->
-                                    <button
-                                        class="btn btn-sm btn-outline-secondary opacity-50"
-                                        disabled
-                                        title="Registro já finalizado/cancelado">
+                                        </button>
 
-                                        <i class="bi bi-x-circle-fill"></i>
+                                        <!-- CANCELAR BLOQUEADO -->
+                                        <button
+                                            class="btn btn-sm btn-outline-secondary opacity-50"
+                                            disabled>
 
-                                    </button>
+                                            <i class="bi bi-x-circle-fill"></i>
 
-                                    {% if r.status == 'CANCELADO' %}
+                                        </button>
 
-                                        <!-- VISUALIZAR MOTIVO -->
+                                    {% endif %}
+
+                                {% elif r.servidor.siape == usuario.siape %}
+
+                                    {% if r.status == 'ABERTO' %}
+
+                                        <!-- EDITAR -->
+                                        <button
+                                            class="btn btn-sm btn-outline-warning"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editarModal{{ r.id_sev }}">
+
+                                            <i class="bi bi-pencil-fill"></i>
+
+                                        </button>
+
+                                        <!-- CANCELAR -->
+                                        <button
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#cancelarModal{{ r.id_sev }}">
+
+                                            <i class="bi bi-x-circle-fill"></i>
+
+                                        </button>
+
+                                    {% else %}
+
+                                        <!-- EDITAR BLOQUEADO -->
+                                        <button
+                                            class="btn btn-sm btn-outline-secondary opacity-50"
+                                            disabled>
+
+                                            <i class="bi bi-pencil-fill"></i>
+
+                                        </button>
+
+                                        <!-- CANCELAR BLOQUEADO -->
+                                        <button
+                                            class="btn btn-sm btn-outline-secondary opacity-50"
+                                            disabled>
+
+                                            <i class="bi bi-x-circle-fill"></i>
+
+                                        </button>
+
+                                    {% endif %}
+
+                                {% endif %}
+
+                                {% if r.status == 'CANCELADO' %}
+
+                                    {% if usuario.perfil.nome_perfil == 'Administrador' or r.servidor.siape == usuario.siape %}
+
                                         <button
                                             class="btn btn-sm btn-outline-dark"
                                             data-bs-toggle="modal"
@@ -556,11 +604,8 @@ Registros
                                     {% endif %}
 
                                 {% endif %}
-
                             </div>
-
                         </td>
-
                     <!-- MODAL EDITAR -->
 
                     <div class="modal fade"
@@ -974,7 +1019,6 @@ Registros
                                     <div class="modal-body">
 
                                         <div class="row g-3">
-
                                             <!-- SERVIDOR -->
 
                                             <div class="col-md-6">
@@ -983,24 +1027,41 @@ Registros
                                                     Servidor
                                                 </label>
 
-                                                <select
-                                                    name="servidor"
-                                                    class="form-select"
-                                                    required>
+                                                {% if usuario.perfil.nome_perfil == 'Administrador' %}
 
-                                                    <option value="">
-                                                        Selecione
-                                                    </option>
+                                                    <select
+                                                        name="servidor"
+                                                        class="form-select"
+                                                        required>
 
-                                                    {% for s in servidores %}
+                                                        <option value="">
+                                                            Selecione
+                                                        </option>
 
-                                                    <option value="{{ s.siape }}">
-                                                        {{ s.nome_servidor }}
-                                                    </option>
+                                                        {% for s in servidores %}
 
-                                                    {% endfor %}
+                                                            <option value="{{ s.siape }}">
+                                                                {{ s.nome_servidor }}
+                                                            </option>
 
-                                                </select>
+                                                        {% endfor %}
+
+                                                    </select>
+
+                                                {% else %}
+
+                                                    <input
+                                                        type="text"
+                                                        class="form-control campo-fixo"
+                                                        value="{{ usuario.nome_servidor }}"
+                                                        readonly>
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="servidor"
+                                                        value="{{ usuario.siape }}">
+
+                                                {% endif %}
 
                                             </div>
 
