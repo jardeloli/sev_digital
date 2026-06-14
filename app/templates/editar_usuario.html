@@ -24,11 +24,11 @@
                 <div class="row g-3">
                     <div class="col-md-8">
                         <label class="form-label fw-semibold" for="nome">Nome</label>
-                        <input class="form-control" type="text" name="nome" id="nome" value="{{ usuario.nome_servidor }}" required>
+                        <input class="form-control" type="text" name="nome" id="nome" value="{{ servidor.nome_servidor }}" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">SIAPE</label>
-                        <input class="form-control" type="text" value="{{ usuario.siape }}" disabled>
+                        <input class="form-control" type="text" value="{{ servidor.siape }}" disabled>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Perfil</label>
@@ -38,7 +38,7 @@
 
                                 <option
                                     value="{{ perfil.id_perfil }}"
-                                    {% if usuario.perfil.id_perfil == perfil.id_perfil %}
+                                    {% if servidor.perfil.id_perfil == perfil.id_perfil %}
                                         selected
                                     {% endif %}>
 
@@ -53,7 +53,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold" for="dt_nasc">Data de nascimento</label>
-                        <input class="form-control" type="date" name="dt_nasc" id="dt_nasc" value="{{ usuario.data_nascimento|date:'Y-m-d' }}" required>
+                        <input class="form-control" type="date" name="dt_nasc" id="dt_nasc" value="{{ servidor.data_nascimento|date:'Y-m-d' }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold" for="cpf">CPF</label>
@@ -61,7 +61,7 @@
                                 id="cpf"
                                 name="cpf"
                                 class="form-control"
-                                value="{{ usuario.cpf }}" required>
+                                value="{{ servidor.cpf }}" required>
                     </div>
                     <div class="col-md-6">
 
@@ -74,17 +74,17 @@
                             class="form-select">
 
                             <option value="ATIVO"
-                                {% if usuario.status == 'ATIVO' %}selected{% endif %}>
+                                {% if servidor.status == 'ATIVO' %}selected{% endif %}>
                                 Ativo
                             </option>
 
                             <option value="AFASTADO"
-                                {% if usuario.status == 'AFASTADO' %}selected{% endif %}>
+                                {% if servidor.status == 'AFASTADO' %}selected{% endif %}>
                                 Afastado
                             </option>
 
                             <option value="DESLIGADO"
-                                {% if usuario.status == 'DESLIGADO' %}selected{% endif %}>
+                                {% if servidor.status == 'DESLIGADO' %}selected{% endif %}>
                                 Desligado
                             </option>
                         </select>
@@ -92,7 +92,7 @@
                     
                     <div class="col-md-6">
                         <label class="form-label fw-semibold" for="email">Email</label>
-                        <input class="form-control" type="email" name="email" id="email" value="{{ usuario.email }}" required>
+                        <input class="form-control" type="email" name="email" id="email" value="{{ servidor.email }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold" for="senha">Nova senha</label>

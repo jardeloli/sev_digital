@@ -857,61 +857,106 @@ def editar_usuario(request):
     )
 
 def editar_servidor(request, siape):
+
     if not usuario_logado(request):
         return redirect('login')
 
     if not usuario_admin(request):
         return redirect('dashboard')
-    
-    usuario = get_object_or_404(
+
+    servidor = get_object_or_404(
         Servidor,
         pk=siape
     )
 
-    context = {
-        'usuario': usuario,
-        'perfis': Perfil.objects.all()
-    }
-
     if request.method == 'POST':
+
         try:
+
             email = request.POST.get('email')
+
             cpf_com_masc = request.POST.get('cpf')
-            cpf = cpf_com_masc.replace('.', '').replace('-', '')
 
-            if Servidor.objects.exclude(pk=usuario.pk).filter(email=email).exists():
-                raise ValidationError('Email já existe.')
+            cpf = cpf_com_masc.replace(
+                '.',
+                ''
+            ).replace(
+                '-',
+                ''
+            )
 
-            if Servidor.objects.exclude(pk=usuario.pk).filter(cpf=cpf).exists():
-                raise ValidationError('CPF já existe.')
+            if Servidor.objects.exclude(
+                pk=servidor.pk
+            ).filter(
+                email=email
+            ).exists():
 
-            
-            usuario.nome_servidor = request.POST.get('nome')
-            usuario.cpf = cpf
-            usuario.email = email
-            usuario.perfil_id = request.POST.get('perfil')
-            usuario.status = request.POST.get('status')
-            usuario.data_nascimento = ServidorService._parse_data_nascimento(
+                raise ValidationError(
+                    'Email já existe.'
+                )
+
+            if Servidor.objects.exclude(
+                pk=servidor.pk
+            ).filter(
+                cpf=cpf
+            ).exists():
+
+                raise ValidationError(
+                    'CPF já existe.'
+                )
+
+            servidor.nome_servidor = request.POST.get(
+                'nome'
+            )
+
+            servidor.cpf = cpf
+
+            servidor.email = email
+
+            servidor.perfil_id = request.POST.get(
+                'perfil'
+            )
+
+            servidor.status = request.POST.get(
+                'status'
+            )
+
+            servidor.data_nascimento = ServidorService._parse_data_nascimento(
                 request.POST.get('dt_nasc')
             )
 
             senha = request.POST.get('senha')
-            if senha:
-                usuario.set_password(senha)
 
-            usuario.save()
-            messages.success(request, 'Servidor atualizado com sucesso.')
-            return redirect('lista_servidores')
+            if senha:
+
+                servidor.set_password(
+                    senha
+                )
+
+            servidor.save()
+
+            messages.success(
+                request,
+                'Servidor atualizado com sucesso.'
+            )
+
+            return redirect(
+                'lista_servidores'
+            )
 
         except ValidationError as e:
-            messages.error(request, e.message)
+
+            messages.error(
+                request,
+                e.message
+            )
 
     return render(
         request,
         'editar_usuario.html',
         base_context(
             request,
-            usuario=usuario,
+            servidor=servidor,
             perfis=Perfil.objects.all()
         )
     )
